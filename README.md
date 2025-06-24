@@ -2,9 +2,9 @@
 
 greedy approach:
 
-python3 create_graph.py
+python3 create_graph.py (to create a random graph)
 
-python3 steiner.py
+python3 steiner.py (to find the best tree)
 
 
 
