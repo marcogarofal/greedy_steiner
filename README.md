@@ -359,7 +359,7 @@ The program expects pickle files named `grafo_0.pickle`, `grafo_1.pickle`, etc. 
 
 
 
-versione futura con max_hops per determinare quanti discretionary node usare al massimo per collegare weak a mandatory (implementato con massimo 2 discretionary, non implementato con n, diventa computazionalmente costoso):
+# versione futura con max_hops per determinare quanti discretionary node usare al massimo per collegare weak a mandatory (implementato con massimo 2 discretionary, non implementato con n, diventa computazionalmente costoso):
 
 
 # Steiner Tree Capacitated Problem Solver
