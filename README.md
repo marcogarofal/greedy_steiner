@@ -15,7 +15,6 @@ https://github.com/marcogarofal/exhaustive-algorithm-virtual-network_private
 
 
 
-
 # Steiner Tree Capacitated Problem Solver
 
 ## 🇮🇹 Italiano
@@ -27,8 +26,8 @@ Questo progetto risolve una variante del **Problema dell'Albero di Steiner con V
 ### Tipologie di Nodi
 
 - **Nodi Deboli (Weak)**: Nodi che devono essere connessi alla rete
-- **Nodi Obbligatori (Mandatory)**: Nodi di alimentazione sempre disponibili con capacità limitata
-- **Nodi Discrezionali (Discretionary)**: Nodi di alimentazione opzionali che possono essere utilizzati come intermediari
+- **Nodi Obbligatori (Mandatory)**: Nodi sempre disponibili con capacità limitata
+- **Nodi Discrezionali (Discretionary)**: Nodi opzionali che possono essere utilizzati come intermediari
 
 ### Principio di Funzionamento
 
@@ -51,7 +50,7 @@ Score = Penalità_Connessioni_Fallite + Costo_Archi + Penalità_Violazioni_Capac
 ```
 
 #### 4. **Gestione delle Capacità**
-- Ogni nodo di alimentazione ha una capacità massima
+- Ogni nodo obbligatorio e discrezionale ha una capacità massima
 - Se la capacità viene superata, si applica una forte penalità
 - Si calcola un costo di efficienza basato sull'utilizzo delle capacità
 
@@ -175,8 +174,8 @@ This project solves a variant of the **Capacitated Steiner Tree Problem**. The g
 ### Node Types
 
 - **Weak Nodes**: Nodes that must be connected to the network
-- **Mandatory Nodes**: Always available power nodes with limited capacity
-- **Discretionary Nodes**: Optional power nodes that can be used as intermediaries
+- **Mandatory Nodes**: Always available nodes with limited capacity
+- **Discretionary Nodes**: Optional nodes that can be used as intermediaries
 
 ### Working Principle
 
@@ -199,7 +198,7 @@ Score = Failed_Connections_Penalty + Edge_Cost + Capacity_Violations_Penalty + E
 ```
 
 #### 4. **Capacity Management**
-- Each power node has a maximum capacity
+- Each mandatory and discretionary node has a maximum capacity
 - If capacity is exceeded, a heavy penalty is applied
 - An efficiency cost is calculated based on capacity utilization
 
@@ -327,7 +326,7 @@ itertools
 ## Usage
 
 ```bash
-python steiner.py
+python steiner_solver.py
 ```
 
 The program expects pickle files named `grafo_0.pickle`, `grafo_1.pickle`, etc. in the `graphs/` directory.
