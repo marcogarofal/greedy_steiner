@@ -14,7 +14,6 @@ https://github.com/marcogarofal/exhaustive-algorithm-virtual-network_private
 
 
 
-
 # Steiner Tree Capacitated Problem Solver - Simplified Version
 
 ## 🇮🇹 Italiano
@@ -173,7 +172,7 @@ steiner_solver_simplified.py
 ### Limitazioni
 
 - ❌ **Non garantisce l'ottimo globale**: Potrebbe esistere una combinazione intermedia migliore
-- ⚠️ **Approccio euristico**: Sacrifica la completezza per la velocità
+- ⚠️ **Ricerca parziale**: Esplora solo 2 scenari invece di tutti i possibili
 
 ### Output
 
@@ -340,7 +339,7 @@ steiner_solver_simplified.py
 ### Limitations
 
 - ❌ **Does not guarantee global optimum**: A better intermediate combination might exist
-- ⚠️ **Heuristic approach**: Sacrifices completeness for speed
+- ⚠️ **Partial search**: Explores only 2 scenarios instead of all possible ones
 
 ### Output
 
@@ -382,7 +381,7 @@ The program expects pickle files `grafo_0.pickle` and `grafo_3.pickle` in the `g
 |---------|-------------|-------------------|
 | **Scenarios Tested** | 2^n combinations | 2 scenarios |
 | **Execution Time** | O(2^n) | O(2) |
-| **Optimality** | Guaranteed global optimum | Good heuristic solution |
+| **Optimality** | Guaranteed global optimum | Exact solutions for tested scenarios |
 | **Insights** | Complete analysis | Focus on extremes |
 | **Use Case** | Research/Complete analysis | Quick decision making |
 
@@ -392,6 +391,7 @@ The program expects pickle files `grafo_0.pickle` and `grafo_3.pickle` in the `g
 - ✅ **Large problems**: When full enumeration is computationally prohibitive
 - ✅ **Practical decisions**: When you want to compare "baseline" vs "full resources"
 - ✅ **Initial analysis**: To understand if discretionary nodes provide significant benefit
+- ✅ **Strategic comparison**: When you need to evaluate the two extreme scenarios
 
 ## When to Use the Full Version
 
