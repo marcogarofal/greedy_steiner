@@ -1,0 +1,40 @@
+================================================================================
+REPORT CONFRONTO COSTI SOLUZIONI
+Data: 2025-07-28 21:36:35
+================================================================================
+
+FILE ANALIZZATI:
+----------------------------------------
+
+dijkstra_solution_graph_3_alpha_0.5_20250728_202318:
+  File: dijkstra_solution_graph_3_alpha_0.5_20250728_202318.pickle
+  Formato: dijkstra
+  Algoritmo: dijkstra
+  Alpha: 0.5
+
+steiner_GRAPH_3_CUSTOM_COST_solution:
+  File: steiner_GRAPH_3_CUSTOM_COST_solution.pickle
+  Formato: steiner
+  Algoritmo: steiner
+  Alpha: 0.5
+
+
+TABELLA COMPARATIVA:
+----------------------------------------
+                                          Soluzione Algoritmo  Alpha (α) Score Finale ACC Cost AOC Cost Cost Function (ACC+AOC)  Edge Cost Totale  Nodi  Archi  Weak Connessi  Discretionary Usati
+dijkstra_solution_graph_3_alpha_0.5_20250728_202318  dijkstra        0.5       516.09 0.032184 0.000000                0.032184                28    27     24             24                    0
+               steiner_GRAPH_3_CUSTOM_COST_solution   steiner        0.5        27.01 0.054023 0.000000                0.054023                47    28     27             24                    1
+
+ANALISI DETTAGLIATA (dijkstra_solution_graph_3_alpha_0.5_20250728_202318 vs steiner_GRAPH_3_CUSTOM_COST_solution):
+============================================================
+
+VINCITORI PER METRICA:
+  Score: steiner_GRAPH_3_CUSTOM_COST_solution
+  ACC: dijkstra_solution_graph_3_alpha_0.5_20250728_202318
+  AOC: steiner_GRAPH_3_CUSTOM_COST_solution
+  Edge Cost: dijkstra_solution_graph_3_alpha_0.5_20250728_202318
+
+CONCLUSIONI:
+------------------------------
+Soluzione migliore (score più basso): steiner_GRAPH_3_CUSTOM_COST_solution
+Score: 27.01
