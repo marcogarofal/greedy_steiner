@@ -1,0 +1,55 @@
+================================================================================
+SOLUTION SUMMARY WITH CUSTOM COST FUNCTION
+================================================================================
+
+COST FUNCTION: C(G) = α * ACC + (1-α) * AOC
+α = 0.5
+ACC = (Σ w_ij * x_ij) / (n(n-1)) - Average Communication Cost
+AOC = (Σ overload_j * d_j * y_j) / n - Average Operational Cost (OVERLOAD ONLY)
+Where overload_j = max(0, usage_j - capacity_j) - only overload contributes to cost
+      d_j = node degree, y_j = node selected
+This formulation favors load distribution over node count minimization
+
+🏆 BEST SOLUTION:
+----------------------------------------
+Final score: 23.56
+ACC component: 0.047126
+AOC component: 0.000000
+Custom cost function value: 0.047126
+Discretionary ACTUALLY used: [29]
+Connected weak nodes: 24
+Failed connections: 0
+Total edge cost: 41
+Capacity efficiency cost: 0.000
+Solution edges: [(1, 29), (29, 25), (29, 6), (29, 10), (29, 15), (29, 18), (29, 20), (29, 21), (29, 23), (29, 24), (29, 2), (29, 3), (29, 4), (29, 5), (29, 7), (29, 8), (29, 9), (29, 11), (29, 12), (29, 13), (29, 14), (29, 16), (29, 17), (29, 19), (29, 22)]
+Capacity usage: {25: 24, 26: 0, 27: 0, 28: 0, 29: 24, 30: 0}
+
+DETAILED COMPARISON OF TESTED SOLUTIONS:
+--------------------------------------------------
+
+#1 SELECTED: WITH ALL discretionary [28, 29, 30]
+  Final Score: 23.56
+  Custom Cost (ACC + AOC): 0.047126
+    ├─ ACC (α=0.5): 0.047126
+    └─ AOC (1-α=0.5): 0.000000
+  Connected: 24/24
+  Failed connections: 0
+  Edge cost: 41
+  Discretionary used: [29]
+  Capacity usage: {25: 24, 26: 0, 27: 0, 28: 0, 29: 24, 30: 0}
+
+#2 REJECTED: WITHOUT discretionary
+  Final Score: 575.86
+  Custom Cost (ACC + AOC): 0.151724
+    ├─ ACC (α=0.5): 0.151724
+    └─ AOC (1-α=0.5): 0.000000
+  Connected: 24/24
+  Failed connections: 0
+  Edge cost: 132
+  Discretionary used: []
+  Capacity usage: {25: 10, 26: 4, 27: 10}
+  REJECTION REASON: Score 552.30 points higher than best
+  SCORE BREAKDOWN vs BEST:
+    ├─ Cost Function Difference: 0.104598 * 1000 = 104.60
+    ├─ Connection Penalty Difference: 0.00
+    └─ Total Difference: 552.30
