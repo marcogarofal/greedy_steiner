@@ -199,7 +199,7 @@ class SolutionCostComparator:
 
     def visualize_cost_comparison(self):
         """
-        Crea grafici di confronto dei costi
+        Crea grafici di confronto dei costi con legende chiare
         """
         if len(self.solutions) < 2:
             print("❌ Servono almeno 2 soluzioni per la visualizzazione")
@@ -207,52 +207,99 @@ class SolutionCostComparator:
 
         # Prepara i dati
         names = list(self.solutions.keys())
+        algorithms = [self.solutions[name]['algorithm'] for name in names]
         scores = [self.solutions[name]['score'] for name in names]
         acc_costs = [self.solutions[name]['acc_cost'] for name in names]
         aoc_costs = [self.solutions[name]['aoc_cost'] for name in names]
         edge_costs = [self.solutions[name]['total_cost'] for name in names]
 
+        # Colori distintivi per algoritmo
+        algo_colors = {
+            'steiner': '#2E86AB',  # Blu
+            'dijkstra': '#A23B72'  # Rosa/Viola
+        }
+        bar_colors = [algo_colors.get(algo.lower(), '#666666') for algo in algorithms]
+
         # Crea figura con subplots
-        fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(15, 12))
+        fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(18, 14))
+        fig.suptitle('Confronto Metriche tra Algoritmi', fontsize=16, weight='bold')
 
         # 1. Score finale
-        bars1 = ax1.bar(names, scores, color=['skyblue', 'lightcoral'])
-        ax1.set_title('Score Finale (minore è meglio)', fontsize=14, weight='bold')
-        ax1.set_ylabel('Score')
-        ax1.grid(True, alpha=0.3)
+        bars1 = ax1.bar(names, scores, color=bar_colors, alpha=0.8, edgecolor='black', linewidth=2)
+        ax1.set_title('Score Finale Complessivo', fontsize=14, weight='bold')
+        ax1.set_ylabel('Score (minore è migliore)', fontsize=12)
+        ax1.grid(True, alpha=0.3, axis='y')
 
-        # Aggiungi valori sulle barre
-        for bar, score in zip(bars1, scores):
+        # Aggiungi valori sulle barre con box
+        for bar, score, algo in zip(bars1, scores, algorithms):
             height = bar.get_height()
-            ax1.text(bar.get_x() + bar.get_width()/2., height,
-                    f'{score:.2f}', ha='center', va='bottom')
+            ax1.text(bar.get_x() + bar.get_width()/2., height + max(scores)*0.01,
+                    f'{score:.2f}', ha='center', va='bottom', fontsize=11, weight='bold',
+                    bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.8))
+
+        # Evidenzia il vincitore
+        min_score_idx = scores.index(min(scores))
+        bars1[min_score_idx].set_linewidth(3)
+        bars1[min_score_idx].set_edgecolor('gold')
+        ax1.text(0.02, 0.98, f'🏆 Migliore: {names[min_score_idx]}',
+                transform=ax1.transAxes, fontsize=12, weight='bold',
+                verticalalignment='top',
+                bbox=dict(boxstyle="round,pad=0.5", facecolor='lightyellow', alpha=0.8))
 
         # 2. Componenti di costo (ACC vs AOC)
         x_pos = range(len(names))
         width = 0.35
 
         bars2_acc = ax2.bar([p - width/2 for p in x_pos], acc_costs, width,
-                           label='ACC', color='lightblue')
+                           label='ACC (Communication)', color='#4ECDC4', alpha=0.8,
+                           edgecolor='black', linewidth=1.5)
         bars2_aoc = ax2.bar([p + width/2 for p in x_pos], aoc_costs, width,
-                           label='AOC', color='lightgreen')
+                           label='AOC (Operational)', color='#F38375', alpha=0.8,
+                           edgecolor='black', linewidth=1.5)
 
-        ax2.set_title('Componenti Cost Function', fontsize=14, weight='bold')
-        ax2.set_ylabel('Costo')
+        ax2.set_title('Componenti della Cost Function C(G) = α·ACC + (1-α)·AOC', fontsize=14, weight='bold')
+        ax2.set_ylabel('Valore del Costo', fontsize=12)
         ax2.set_xticks(x_pos)
         ax2.set_xticklabels(names)
-        ax2.legend()
-        ax2.grid(True, alpha=0.3)
+        ax2.grid(True, alpha=0.3, axis='y')
+
+        # Aggiungi valori sulle barre
+        for bars, costs, offset in [(bars2_acc, acc_costs, -width/2), (bars2_aoc, aoc_costs, width/2)]:
+            for i, (bar, cost) in enumerate(zip(bars, costs)):
+                height = bar.get_height()
+                ax2.text(i + offset, height + 0.00001,
+                        f'{cost:.5f}', ha='center', va='bottom', fontsize=9)
+
+        # Legenda migliorata
+        legend2 = ax2.legend(loc='upper left', fontsize=11, framealpha=0.9,
+                            title='Componenti', title_fontsize=12)
+        legend2.get_frame().set_edgecolor('black')
+
+        # Aggiungi info su alpha
+        alpha_values = [self.solutions[name]['alpha'] for name in names]
+        alpha_text = ', '.join([f'{name}: α={alpha}' for name, alpha in zip(names, alpha_values)])
+        ax2.text(0.98, 0.02, alpha_text, transform=ax2.transAxes,
+                fontsize=10, ha='right', va='bottom',
+                bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.7))
 
         # 3. Costo totale archi
-        bars3 = ax3.bar(names, edge_costs, color=['orange', 'gold'])
-        ax3.set_title('Costo Totale Archi', fontsize=14, weight='bold')
-        ax3.set_ylabel('Peso totale')
-        ax3.grid(True, alpha=0.3)
+        bars3 = ax3.bar(names, edge_costs, color=bar_colors, alpha=0.8,
+                       edgecolor='black', linewidth=2)
+        ax3.set_title('Costo Totale degli Archi (Somma Pesi)', fontsize=14, weight='bold')
+        ax3.set_ylabel('Peso Totale', fontsize=12)
+        ax3.grid(True, alpha=0.3, axis='y')
 
         for bar, cost in zip(bars3, edge_costs):
             height = bar.get_height()
-            ax3.text(bar.get_x() + bar.get_width()/2., height,
-                    f'{cost}', ha='center', va='bottom')
+            ax3.text(bar.get_x() + bar.get_width()/2., height + max(edge_costs)*0.01,
+                    f'{cost}', ha='center', va='bottom', fontsize=11, weight='bold',
+                    bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.8))
+
+        # Info su numero di archi
+        num_edges = [self.solutions[name].get('num_edges', 'N/A') for name in names]
+        for i, (name, n_edges) in enumerate(zip(names, num_edges)):
+            ax3.text(i, -max(edge_costs)*0.05, f'{n_edges} archi',
+                    ha='center', va='top', fontsize=10, style='italic')
 
         # 4. Confronto percentuale (se ci sono 2 soluzioni)
         if len(self.solutions) == 2:
@@ -260,7 +307,7 @@ class SolutionCostComparator:
             sol2 = self.solutions[names[1]]
 
             # Calcola differenze percentuali
-            metrics = ['Score', 'ACC', 'AOC', 'Edge Cost']
+            metrics = ['Score\nFinale', 'ACC\n(Comm.)', 'AOC\n(Oper.)', 'Costo\nArchi']
             values1 = [sol1['score'], sol1['acc_cost'], sol1['aoc_cost'], sol1['total_cost']]
             values2 = [sol2['score'], sol2['acc_cost'], sol2['aoc_cost'], sol2['total_cost']]
 
@@ -272,19 +319,84 @@ class SolutionCostComparator:
                     diff_pct = 0
                 differences.append(diff_pct)
 
-            colors = ['red' if d > 0 else 'green' for d in differences]
-            bars4 = ax4.bar(metrics, differences, color=colors, alpha=0.7)
-            ax4.axhline(y=0, color='black', linestyle='-', linewidth=0.5)
-            ax4.set_title(f'Differenza % ({names[1]} vs {names[0]})', fontsize=14, weight='bold')
-            ax4.set_ylabel('Differenza %')
-            ax4.grid(True, alpha=0.3)
+            # Colori basati su positivo/negativo
+            colors = ['#E63946' if d > 0 else '#2A9D8F' for d in differences]
+            bars4 = ax4.bar(metrics, differences, color=colors, alpha=0.8,
+                           edgecolor='black', linewidth=2)
+            ax4.axhline(y=0, color='black', linestyle='-', linewidth=1)
+            ax4.set_title(f'Differenza Percentuale: {names[1]} rispetto a {names[0]}',
+                         fontsize=14, weight='bold')
+            ax4.set_ylabel('Differenza %', fontsize=12)
+            ax4.grid(True, alpha=0.3, axis='y')
 
-            # Aggiungi valori
+            # Aggiungi valori con frecce
             for bar, diff in zip(bars4, differences):
                 height = bar.get_height()
-                y_pos = height + 1 if height > 0 else height - 1
-                ax4.text(bar.get_x() + bar.get_width()/2., y_pos,
-                        f'{diff:+.1f}%', ha='center', va='bottom' if height > 0 else 'top')
+                if abs(height) > 0.1:  # Solo se la differenza è significativa
+                    y_pos = height + (2 if height > 0 else -2)
+                    arrow = '↑' if height > 0 else '↓'
+                    ax4.text(bar.get_x() + bar.get_width()/2., y_pos,
+                            f'{arrow} {diff:+.1f}%', ha='center',
+                            va='bottom' if height > 0 else 'top',
+                            fontsize=11, weight='bold',
+                            bbox=dict(boxstyle="round,pad=0.3",
+                                    facecolor='white', alpha=0.8))
+
+            # Legenda per i colori
+            from matplotlib.patches import Patch
+            legend_elements = [
+                Patch(facecolor='#2A9D8F', label=f'{names[1]} migliore', alpha=0.8),
+                Patch(facecolor='#E63946', label=f'{names[0]} migliore', alpha=0.8)
+            ]
+            ax4.legend(handles=legend_elements, loc='best', fontsize=11,
+                      framealpha=0.9, title='Interpretazione', title_fontsize=12)
+        else:
+            # Se più di 2 soluzioni, mostra una tabella riassuntiva
+            ax4.axis('off')
+
+            # Crea tabella riassuntiva
+            cell_text = []
+            for name in names:
+                sol = self.solutions[name]
+                row = [
+                    sol['algorithm'],
+                    f"{sol['score']:.2f}",
+                    f"{sol['acc_cost']:.5f}",
+                    f"{sol['aoc_cost']:.5f}",
+                    f"{sol['total_cost']}"
+                ]
+                cell_text.append(row)
+
+            table = ax4.table(cellText=cell_text,
+                            rowLabels=names,
+                            colLabels=['Algoritmo', 'Score', 'ACC', 'AOC', 'Edge Cost'],
+                            cellLoc='center',
+                            loc='center',
+                            colWidths=[0.15, 0.15, 0.15, 0.15, 0.15])
+
+            table.auto_set_font_size(False)
+            table.set_fontsize(11)
+            table.scale(1.2, 2)
+
+            # Colora celle
+            for i in range(len(names)):
+                table[(i+1, 0)].set_facecolor(bar_colors[i])
+                table[(i+1, 0)].set_alpha(0.3)
+
+            ax4.set_title('Tabella Riassuntiva', fontsize=14, weight='bold')
+
+        # Aggiungi legenda globale per gli algoritmi
+        if len(set(algorithms)) > 1:
+            from matplotlib.patches import Patch
+            algo_patches = []
+            for algo in set(algorithms):
+                color = algo_colors.get(algo.lower(), '#666666')
+                algo_patches.append(Patch(facecolor=color, label=algo.upper(), alpha=0.8))
+
+            fig.legend(handles=algo_patches, loc='upper right',
+                      bbox_to_anchor=(0.98, 0.98), fontsize=12,
+                      title='Algoritmi', title_fontsize=13,
+                      framealpha=0.9, edgecolor='black')
 
         plt.tight_layout()
 

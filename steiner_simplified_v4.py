@@ -211,29 +211,14 @@ class Solution:
         # Calculate overall score using the new cost function
         self.score = self.calculate_score()
 
+
+
+
+
     def calculate_cost_function(self, graph, selected_edges, selected_nodes, alpha=0.5):
         """
         Calculate the custom cost function C(G) = α * ACC + (1-α) * AOC
-
-        ACC = (Σ w_ij * x_ij) / (n(n-1))  - Average Communication Cost
-        AOC = (Σ overload_j * d_j * y_j) / n - Average Operational Cost (OVERLOAD ONLY)
-
-        Where:
-        - w_ij: weight of edge (i,j)
-        - x_ij: 1 if edge (i,j) is selected, 0 otherwise
-        - overload_j: max(0, usage_j - capacity_j) - only overload contributes to cost
-        - d_j: degree of node j (number of connections/links)
-        - y_j: 1 if node j is selected, 0 otherwise
-        - n: total number of nodes in graph
-
-        This formulation favors load distribution: balanced nodes contribute 0 to AOC,
-        only overloaded nodes increase the cost.
-
-        Args:
-            graph: The original graph
-            selected_edges: List of edges in the solution
-            selected_nodes: List of nodes in the solution
-            alpha: Weight parameter [0,1]
+        WITH ENHANCED DEBUGGING
         """
         n = len(graph.nodes())
 
@@ -243,51 +228,123 @@ class Solution:
 
         # Calculate AOC (Average Operational Cost) - OVERLOAD ONLY
         total_operational_cost = 0
-        print(f"    🔍 AOC Calculation Debug (OVERLOAD ONLY FORMULA):")
-        print(f"       Selected nodes: {list(selected_nodes)}")
-        print(f"       Selected edges: {selected_edges}")
-        print(f"       Current capacity_usage: {dict(self.capacity_usage)}")
+
+        print(f"\n    🔍 AOC DETAILED CALCULATION DEBUG:")
+        print(f"    ════════════════════════════════════════════")
+        print(f"    📊 Graph info:")
+        print(f"       - Total nodes in graph (n): {n}")
+        print(f"       - Selected nodes: {list(selected_nodes)}")
+        print(f"       - Number of selected nodes: {len(selected_nodes)}")
+        print(f"       - Selected edges: {selected_edges}")
+        print(f"       - Number of selected edges: {len(selected_edges)}")
+        print(f"    📊 Capacity usage: {dict(self.capacity_usage)}")
+        print(f"    📊 Power capacities defined: {power_capacities}")
+        print(f"    ────────────────────────────────────────────")
+
+        node_contributions = []
 
         for node in selected_nodes:
-            # Calculate overload_j: only overload contributes to cost
+            # Get capacity info
             max_capacity = power_capacities.get(node, float('inf'))
             current_usage = self.capacity_usage.get(node, 0)
 
-            if max_capacity == float('inf') or max_capacity == 0:
-                overload_j = 0.0  # No capacity constraints
-                print(f"       Node {node}: NO CAPACITY LIMIT → overload = 0.0")
+            print(f"\n    🔸 Node {node}:")
+            print(f"       - Max capacity: {max_capacity}")
+            print(f"       - Current usage: {current_usage}")
+
+            if max_capacity == float('inf'):
+                overload_j = 0.0
+                print(f"       - Status: NO CAPACITY LIMIT (inf) → overload = 0.0")
+            elif max_capacity == 0:
+                overload_j = 0.0
+                print(f"       - Status: ZERO CAPACITY → overload = 0.0")
             else:
                 # OVERLOAD ONLY: only excess usage contributes to cost
                 overload_j = max(0.0, current_usage - max_capacity)
                 if overload_j > 0:
-                    print(f"       Node {node}: capacity={max_capacity}, usage={current_usage} → OVERLOAD = {overload_j}")
+                    print(f"       - Status: OVERLOADED!")
+                    print(f"       - Overload amount: {current_usage} - {max_capacity} = {overload_j}")
                 else:
-                    print(f"       Node {node}: capacity={max_capacity}, usage={current_usage} → balanced (no cost)")
+                    print(f"       - Status: BALANCED (within capacity)")
+                    print(f"       - Spare capacity: {max_capacity - current_usage}")
+                    print(f"       - Overload: 0.0 (no contribution to AOC)")
 
-            # d_j: degree of node j in the solution (number of connections)
+            # Calculate degree
             d_j = len([edge for edge in selected_edges if node in edge])
-            # y_j: 1 if node is selected, 0 otherwise
+            print(f"       - Degree (d_j): {d_j} connections")
+
+            # y_j is always 1 for selected nodes
             y_j = 1 if node in selected_nodes else 0
 
+            # Calculate contribution
             contribution = overload_j * d_j * y_j
             total_operational_cost += contribution
 
-            print(f"                     d_j={d_j}, y_j={y_j}, contribution = {overload_j:.3f} × {d_j} × {y_j} = {contribution:.3f}")
+            print(f"       - Contribution: {overload_j:.3f} × {d_j} × {y_j} = {contribution:.3f}")
 
+            node_contributions.append({
+                'node': node,
+                'capacity': max_capacity,
+                'usage': current_usage,
+                'overload': overload_j,
+                'degree': d_j,
+                'contribution': contribution
+            })
+
+        # Calculate final AOC
         aoc = total_operational_cost / n if n > 0 else 0
+
+        print(f"\n    ════════════════════════════════════════════")
+        print(f"    📊 AOC FINAL CALCULATION:")
+        print(f"       - Total operational cost: {total_operational_cost:.6f}")
+        print(f"       - Divided by n: {total_operational_cost:.6f} / {n} = {aoc:.6f}")
+
+        # Show why AOC might be 0
+        if aoc == 0:
+            print(f"    ⚠️  AOC IS ZERO! Possible reasons:")
+
+            overloaded_nodes = [nc for nc in node_contributions if nc['overload'] > 0]
+            if len(overloaded_nodes) == 0:
+                print(f"       1. NO OVERLOADED NODES - all nodes within capacity")
+                print(f"       2. Only overload contributes to AOC in this formula")
+            else:
+                print(f"       1. Overloaded nodes exist but total_cost/n is too small")
+                print(f"       2. With n={n}, even overload of {total_operational_cost} gives {aoc}")
+
+            print(f"\n    💡 DETAILED NODE STATUS:")
+            for nc in node_contributions:
+                if nc['usage'] > 0:
+                    status = "OVERLOADED" if nc['overload'] > 0 else "BALANCED"
+                    print(f"       Node {nc['node']}: {nc['usage']}/{nc['capacity']} - {status}")
 
         # Combined cost function
         cost = alpha * acc + (1 - alpha) * aoc
 
-        print(f"    📊 Final AOC: total_overload_cost={total_operational_cost:.3f} / n={n} = {aoc:.6f}")
-        print(f"    📊 Final ACC: {acc:.6f}")
-        print(f"    📊 Combined cost: {alpha}×{acc:.6f} + {1-alpha}×{aoc:.6f} = {cost:.6f}")
+        print(f"\n    📊 FINAL COSTS:")
+        print(f"       - ACC: {acc:.6f}")
+        print(f"       - AOC: {aoc:.6f}")
+        print(f"       - Combined: {alpha}×{acc:.6f} + {1-alpha}×{aoc:.6f} = {cost:.6f}")
+        print(f"    ════════════════════════════════════════════\n")
 
         return cost, acc, aoc
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def calculate_score(self):
         """
         Calculate a score to compare solutions using the custom cost function
+        FIXED: Remove double penalty for capacity violations since AOC already handles overload
         """
         # Get all nodes that are part of the solution
         selected_nodes = set()
@@ -314,24 +371,22 @@ class Solution:
 
         # Add penalties for constraints violations
 
-        # 1. Penalty for unconnected nodes (very high penalty)
+        # 1. Penalty for unconnected nodes (very high penalty - this is critical)
         connection_penalty = len(self.failed_connections) * 1000
 
-        # 2. Penalty for capacity violations (updated to consider balanced overload)
+        # 2. REMOVED capacity violation penalty - AOC already handles this!
+        # The custom cost function's AOC component already penalizes overload
+        # Adding extra penalties would be double-counting
         violation_penalty = 0
-        max_overload = 0
-        total_overload = 0
 
-        for node, usage in self.capacity_usage.items():
-            max_cap = power_capacities.get(node, float('inf'))
-            if usage > max_cap and max_cap != float('inf'):
-                overload = usage - max_cap
-                total_overload += overload
-                max_overload = max(max_overload, overload)
-
-        # Penalty considers both total overload and maximum single-node overload
-        # This encourages balanced distribution of overload
-        violation_penalty = total_overload * 50 + max_overload * 100
+        # Alternative: Only penalize EXTREME overload cases (optional)
+        # extreme_overload_penalty = 0
+        # for node, usage in self.capacity_usage.items():
+        #     max_cap = power_capacities.get(node, float('inf'))
+        #     if usage > max_cap * 2 and max_cap != float('inf'):  # Only if usage is MORE than double capacity
+        #         extreme_overload = usage - (max_cap * 2)
+        #         extreme_overload_penalty += extreme_overload * 10
+        # violation_penalty = extreme_overload_penalty
 
         # 3. Connectivity constraint penalty (ensure the graph is connected)
         connectivity_penalty = 0
@@ -351,28 +406,46 @@ class Solution:
         print(f"          * AOC (1-α={1-self.alpha}): {self.aoc_cost:.6f}")
         print(f"        - Cost function × 1000: {cost_func_value * 1000:.2f}")
         print(f"        - Failed nodes: {len(self.failed_connections)} → Connection penalty: {connection_penalty}")
-        print(f"        - Capacity violations: total={total_overload}, max={max_overload} → Penalty: {violation_penalty}")
+        print(f"        - Capacity violation penalty: {violation_penalty} (REMOVED - handled by AOC)")
         print(f"        - Connectivity penalty: {connectivity_penalty}")
         print(f"        - TOTAL SCORE: {total_score:.2f}")
 
-        # Check detailed violations with balanced info
-        if violation_penalty > 0:
-            print(f"        - OVERLOAD DETAILS:")
-            overloads = []
-            for node, usage in self.capacity_usage.items():
-                max_cap = power_capacities.get(node, float('inf'))
-                if usage > max_cap and max_cap != float('inf'):
-                    overload = usage - max_cap
-                    overloads.append((node, overload))
-                    print(f"          Node {node}: {usage}/{max_cap} (overload: +{overload})")
+        # Show overload details for information only (not penalized)
+        overload_info = []
+        for node, usage in self.capacity_usage.items():
+            max_cap = power_capacities.get(node, float('inf'))
+            if usage > max_cap and max_cap != float('inf'):
+                overload = usage - max_cap
+                overload_info.append((node, usage, max_cap, overload))
 
-            if overloads:
-                overload_values = [o[1] for o in overloads]
-                avg_overload = sum(overload_values) / len(overload_values)
-                std_overload = (sum((x - avg_overload)**2 for x in overload_values) / len(overload_values))**0.5
-                print(f"          Balance: avg={avg_overload:.2f}, std={std_overload:.2f} (lower std = more balanced)")
+        if overload_info:
+            print(f"        - OVERLOAD INFO (already in AOC, not penalized again):")
+            for node, usage, cap, overload in overload_info:
+                print(f"          Node {node}: {usage}/{cap} (overload: +{overload})")
 
         return total_score
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def __str__(self):
         return (f"Solution {self.graph_info}:\n"
@@ -439,15 +512,11 @@ def find_all_paths_to_mandatory(graph, weak_node, mandatory_nodes, discretionary
     all_paths.sort(key=lambda x: x['cost'])
     return all_paths
 
-
-# Fix per la funzione solve_with_discretionary_subset
-# Aggiungi questa parte dopo aver connesso tutti i nodi weak
-
 def solve_with_discretionary_subset(graph, weak_nodes, mandatory_nodes, discretionary_subset,
                                    power_capacities, graph_info="", alpha=0.5):
     """
     Solve the problem using only a specific subset of discretionary nodes
-    with the new cost function - FIXED VERSION
+    with the new cost function
     """
     steiner_tree = nx.Graph()
     capacity_usage = {node: 0 for node in mandatory_nodes + discretionary_subset}
@@ -565,6 +634,8 @@ def solve_with_discretionary_subset(graph, weak_nodes, mandatory_nodes, discreti
             print(f"       ⏭️  Skipping {weak_node} (already connected)")
             continue
 
+        # REMOVED: capacity feasibility check - let the cost function handle balance
+        # Allow all paths and let the AOC component guide the optimization
         path = option['path']
         target_mandatory = option['target_mandatory']
         discretionary_used = option['discretionary_used']
@@ -618,88 +689,6 @@ def solve_with_discretionary_subset(graph, weak_nodes, mandatory_nodes, discreti
                 failed_connections.append(weak_node)
                 print(f"    ✗ IMPOSSIBLE to connect {weak_node}")
 
-    # ==================================================================
-    # FIX CRITICO: ASSICURATI CHE TUTTI I NODI MANDATORY SIANO NELL'ALBERO
-    # ==================================================================
-
-    print(f"\n    🔧 VERIFICA NODI MANDATORY:")
-
-    # Ottieni tutti i nodi attualmente nell'albero
-    nodes_in_tree = set()
-    for u, v in steiner_tree.edges():
-        nodes_in_tree.add(u)
-        nodes_in_tree.add(v)
-
-    # Trova i nodi mandatory mancanti
-    missing_mandatory = set(mandatory_nodes) - nodes_in_tree
-
-    if missing_mandatory:
-        print(f"    ⚠️  NODI MANDATORY MANCANTI: {missing_mandatory}")
-        print(f"    🔧 Connettendo i nodi mandatory mancanti...")
-
-        # Per ogni nodo mandatory mancante, connettilo al nodo più vicino già nell'albero
-        for missing_node in missing_mandatory:
-            best_connection = None
-            best_cost = float('inf')
-
-            # Trova il nodo più vicino già nell'albero
-            for tree_node in nodes_in_tree:
-                if graph.has_edge(missing_node, tree_node):
-                    edge_cost = graph[missing_node][tree_node]['weight']
-                    if edge_cost < best_cost:
-                        best_cost = edge_cost
-                        best_connection = tree_node
-
-            if best_connection is not None:
-                # Aggiungi l'arco all'albero
-                steiner_tree.add_edge(missing_node, best_connection,
-                                    weight=graph[missing_node][best_connection]['weight'])
-                nodes_in_tree.add(missing_node)
-                print(f"    ✓ Connesso nodo mandatory {missing_node} a {best_connection} (costo: {best_cost})")
-            else:
-                # Se non c'è connessione diretta, usa Dijkstra per trovare il percorso più breve
-                print(f"    🔍 Nessuna connessione diretta per {missing_node}, cercando percorso...")
-
-                shortest_path = None
-                shortest_cost = float('inf')
-
-                for tree_node in nodes_in_tree:
-                    try:
-                        path = nx.shortest_path(graph, missing_node, tree_node, weight='weight')
-                        path_cost = nx.shortest_path_length(graph, missing_node, tree_node, weight='weight')
-
-                        if path_cost < shortest_cost:
-                            shortest_cost = path_cost
-                            shortest_path = path
-                    except nx.NetworkXNoPath:
-                        continue
-
-                if shortest_path:
-                    # Aggiungi tutti gli archi del percorso
-                    for i in range(len(shortest_path) - 1):
-                        steiner_tree.add_edge(shortest_path[i], shortest_path[i+1],
-                                            weight=graph[shortest_path[i]][shortest_path[i+1]]['weight'])
-                        nodes_in_tree.add(shortest_path[i])
-                    nodes_in_tree.add(shortest_path[-1])
-                    print(f"    ✓ Connesso {missing_node} tramite percorso: {shortest_path} (costo: {shortest_cost})")
-                else:
-                    print(f"    ❌ IMPOSSIBILE connettere il nodo mandatory {missing_node}!")
-    else:
-        print(f"    ✅ Tutti i nodi mandatory sono già nell'albero!")
-
-    # Verifica finale
-    final_nodes_in_tree = set()
-    for u, v in steiner_tree.edges():
-        final_nodes_in_tree.add(u)
-        final_nodes_in_tree.add(v)
-
-    mandatory_in_tree = set(mandatory_nodes) & final_nodes_in_tree
-    print(f"    📊 Nodi mandatory nell'albero finale: {len(mandatory_in_tree)}/{len(mandatory_nodes)} → {sorted(mandatory_in_tree)}")
-
-    # ==================================================================
-    # FINE FIX
-    # ==================================================================
-
     # Calculate statistics
     total_cost = sum(graph[u][v]['weight'] for u, v in steiner_tree.edges())
 
@@ -720,9 +709,6 @@ def solve_with_discretionary_subset(graph, weak_nodes, mandatory_nodes, discreti
 
     return Solution(steiner_tree, capacity_usage, connected_weak, failed_connections,
                    total_cost, capacity_cost, actually_used_list, graph_info, alpha=alpha)
-
-
-
 
 def find_best_solution_simplified(graph, weak_nodes, mandatory_nodes, all_discretionary_nodes,
                                  power_capacities, alpha=0.5):
@@ -1230,7 +1216,45 @@ if __name__ == "__main__":
         print(f"Discretionary nodes: {discretionary_nodes_list}")
 
         # Node capacities - customize these based on your graph
-        power_capacities = {1: 1, 2: 1, 3: 1, 4: 3, 5: 3, 6: 5, 7: 0}
+        #power_capacities = {1: 1, 2: 1, 3: 1, 4: 3, 5: 3, 6: 5, 7: 0}
+
+        # Extended power capacities from 1 to 30
+        power_capacities = {
+            # Original values (1-7)
+            1: 1,
+            2: 1,
+            3: 1,
+            4: 3,
+            5: 3,
+            6: 5,
+            7: 0,
+
+            # Extended values (8-30)
+            8: 2,
+            9: 2,
+            10: 4,
+            11: 3,
+            12: 3,
+            13: 5,
+            14: 2,
+            15: 4,
+            16: 6,
+            17: 3,
+            18: 3,
+            19: 5,
+            20: 4,
+            21: 4,
+            22: 6,
+            23: 3,
+            24: 5,
+            25: 8,   # Mandatory node - higher capacity
+            26: 6,   # Mandatory node - medium capacity
+            27: 7,   # Mandatory node - medium-high capacity
+            28: 50,   # Discretionary node
+            29: 40,   # Discretionary node
+            30: 60    # Discretionary node
+        }
+
 
         print(f"Node capacities (used for AOC calculation): {power_capacities}")
 
