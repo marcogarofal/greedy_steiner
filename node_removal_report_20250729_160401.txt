@@ -1,0 +1,47 @@
+================================================================================
+REPORT RIMOZIONE NODI - GRAFI MODIFICATI
+Data: 2025-07-29 16:04:01
+================================================================================
+
+NODI RIMOSSI (4):
+----------------------------------------
+1. Nodo 41
+2. Nodo 42
+3. Nodo 43
+4. Nodo 45
+
+
+GRAFI MODIFICATI SALVATI (4):
+----------------------------------------
+
+Nodo rimosso: 41
+  - File: dijistra_without_node_41.pickle
+  - Path completo: graphs2/dijistra_without_node_41.pickle
+
+Nodo rimosso: 42
+  - File: dijistra_without_node_42.pickle
+  - Path completo: graphs2/dijistra_without_node_42.pickle
+
+Nodo rimosso: 43
+  - File: dijistra_without_node_43.pickle
+  - Path completo: graphs2/dijistra_without_node_43.pickle
+
+Nodo rimosso: 45
+  - File: dijistra_without_node_45.pickle
+  - Path completo: graphs2/dijistra_without_node_45.pickle
+
+
+ISTRUZIONI PER L'USO:
+----------------------------------------
+1. I grafi modificati sono nella cartella 'graphs2'
+2. I file sono pronti per essere caricati direttamente
+   in paste.txt e paste-2.txt
+3. Esempio di utilizzo:
+   - Modifica il path in paste.txt/paste-2.txt da 'graphs' a 'graphs2'
+   - Oppure copia i file da graphs2 a graphs
+   - Il codice caricherà automaticamente il file
+     'dijistra_without_node_X.pickle'
+
+NOTA: I codici paste.txt e paste-2.txt eseguiranno
+      automaticamente gli algoritmi Steiner e Dijkstra
+      sui grafi modificati.

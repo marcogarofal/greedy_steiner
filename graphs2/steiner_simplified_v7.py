@@ -6,7 +6,6 @@ import pickle
 import os
 import datetime
 import json
-import time
 
 # Add matplotlib backend to avoid display errors
 import matplotlib
@@ -1403,7 +1402,8 @@ if __name__ == "__main__":
 
         try:
             # Load graph
-            file_name = os.path.join(path, f"grafo_{graph_index}.pickle")
+            #file_name = os.path.join(path, f"grafo_{graph_index}.pickle")
+            file_name = os.path.join(path, f"grafo_without_node_45.pickle")
 
             with open(file_name, "rb") as f:
                 graph = pickle.load(f)
@@ -1534,19 +1534,11 @@ if __name__ == "__main__":
 
         print(f"Node capacities (used for AOC calculation): {power_capacities}")
 
-        start_time = time.time()
-
         # Find best solution with custom cost function
         best_solution, all_solutions = find_best_solution_simplified(
             graph, weak_nodes_list, mandatory_nodes_list, discretionary_nodes_list,
             power_capacities, alpha
         )
-
-        end_time = time.time()
-        execution_time = end_time - start_time
-
-        print(f"\n⏱️  Calcolo completato in {execution_time:.3f} secondi")
-
 
         # Visualize and save results
         visualize_best_solution(graph, best_solution, weak_nodes_list, mandatory_nodes_list,
@@ -1617,7 +1609,6 @@ if __name__ == "__main__":
         print(f"💾 You can import the solution tree with:")
         print(f"   import pickle")
         print(f"   solution = pickle.load(open('{pickle_filename}', 'rb'))")
-        print(f"\n⏱️  Calcolo completato in {execution_time:.3f} secondi")
 
     else:
         print("❌ Multiple configurations mode not implemented in this version")

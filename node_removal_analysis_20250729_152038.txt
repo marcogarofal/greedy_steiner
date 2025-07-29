@@ -1,0 +1,43 @@
+================================================================================
+REPORT ANALISI RIMOZIONE NODI
+Data: 2025-07-29 15:20:38
+================================================================================
+
+PERCORSO SELEZIONATO:
+----------------------------------------
+Tipo: Percorso con matching tra le due soluzioni
+Nodi weak: (1, 3)
+Numero hop: 4
+Percorso sol1: 1 -> 45 -> 41 -> 42 -> 3
+Percorso sol2: 1 -> 45 -> 41 -> 42 -> 3
+
+
+NODI INTERMEDI DA TESTARE (3):
+----------------------------------------
+
+1. Nodo 45:
+   - Dijkstra: unknown
+   - Steiner: unknown
+
+2. Nodo 41:
+   - Dijkstra: unknown
+   - Steiner: unknown
+
+3. Nodo 42:
+   - Dijkstra: unknown
+   - Steiner: unknown
+
+
+FILE GENERATI:
+----------------------------------------
+1. graph_without_node_45_20250729_152038.pickle
+2. graph_without_node_41_20250729_152038.pickle
+3. graph_without_node_42_20250729_152038.pickle
+
+
+ISTRUZIONI PER L'USO:
+----------------------------------------
+1. I grafi modificati sono stati salvati nella cartella 'modified_graphs'
+2. Ogni file contiene il grafo originale senza uno specifico nodo
+3. Utilizzare questi grafi per rilanciare gli algoritmi Dijkstra e Steiner
+4. Confrontare i risultati per valutare l'impatto di ogni rimozione

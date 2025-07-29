@@ -1,0 +1,44 @@
+================================================================================
+REPORT RIMOZIONE NODI - GRAFI MODIFICATI
+Data: 2025-07-29 16:35:06
+================================================================================
+
+NODI RIMOSSI (4):
+----------------------------------------
+1. Nodo 41
+2. Nodo 42
+3. Nodo 43
+4. Nodo 45
+
+
+GRAFI MODIFICATI SALVATI (4):
+----------------------------------------
+
+Nodo rimosso: 41
+  - File: grafo_without_node_41.pickle
+  - Path completo: graphs2/grafo_without_node_41.pickle
+
+Nodo rimosso: 42
+  - File: grafo_without_node_42.pickle
+  - Path completo: graphs2/grafo_without_node_42.pickle
+
+Nodo rimosso: 43
+  - File: grafo_without_node_43.pickle
+  - Path completo: graphs2/grafo_without_node_43.pickle
+
+Nodo rimosso: 45
+  - File: grafo_without_node_45.pickle
+  - Path completo: graphs2/grafo_without_node_45.pickle
+
+
+ISTRUZIONI PER L'USO:
+----------------------------------------
+1. I grafi modificati sono nella cartella 'graphs2'
+2. I file sono pronti per essere usati con entrambi gli algoritmi
+3. Per utilizzarli:
+   - In paste.txt (Steiner): modifica il path da 'graphs' a 'graphs2'
+   - In paste-2.txt (Dijkstra): modifica il path da 'graphs' a 'graphs2'
+   - Carica il file 'grafo_without_node_X.pickle'
+
+NOTA: Entrambi gli algoritmi (Steiner e Dijkstra) possono usare
+      lo stesso grafo modificato per calcolare le loro soluzioni.

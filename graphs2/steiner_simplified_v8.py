@@ -6,7 +6,7 @@ import pickle
 import os
 import datetime
 import json
-import time
+import time  # Added for timing
 
 # Add matplotlib backend to avoid display errors
 import matplotlib
@@ -1373,6 +1373,47 @@ def generate_capacities_50_nodes():
     return capacities
 
 
+def save_execution_time(execution_time, graph_index, alpha, save_name=None):
+    """
+    Save execution time to a file
+    """
+    if save_name is None:
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        save_name = f"execution_time_graph_{graph_index}_alpha_{alpha}_{timestamp}.txt"
+    
+    filepath = os.path.join(path, save_name)
+    
+    with open(filepath, 'w') as f:
+        f.write("="*60 + "\n")
+        f.write("ALGORITHM EXECUTION TIME REPORT\n")
+        f.write("="*60 + "\n\n")
+        
+        f.write(f"Date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write(f"Graph Index: {graph_index}\n")
+        f.write(f"Alpha Parameter: {alpha}\n")
+        f.write(f"Execution Time: {execution_time:.6f} seconds\n")
+        f.write(f"Execution Time: {execution_time:.3f} milliseconds\n")
+        f.write(f"Execution Time: {execution_time*1000000:.0f} microseconds\n\n")
+        
+        # Add context about what was measured
+        f.write("MEASUREMENT DETAILS:\n")
+        f.write("-"*30 + "\n")
+        f.write("The execution time includes:\n")
+        f.write("  - Finding best solution (find_best_solution_simplified)\n")
+        f.write("  - Testing solution WITHOUT discretionary nodes\n")
+        f.write("  - Testing solution WITH ALL discretionary nodes\n")
+        f.write("  - Comparing and selecting the best solution\n\n")
+        
+        f.write("The execution time EXCLUDES:\n")
+        f.write("  - Graph loading from pickle file\n")
+        f.write("  - Visualization and image generation\n")
+        f.write("  - File saving operations\n")
+        f.write("  - User input/output operations\n")
+    
+    print(f"⏱️ Execution time saved: {save_name}")
+    print(f"   📁 Full path: {filepath}")
+    return filepath
+
 
 if __name__ == "__main__":
     # Choose execution mode
@@ -1403,7 +1444,8 @@ if __name__ == "__main__":
 
         try:
             # Load graph
-            file_name = os.path.join(path, f"grafo_{graph_index}.pickle")
+            #file_name = os.path.join(path, f"grafo_{graph_index}.pickle")
+            file_name = os.path.join(path, f"grafo_without_node_41.pickle")
 
             with open(file_name, "rb") as f:
                 graph = pickle.load(f)
@@ -1439,114 +1481,30 @@ if __name__ == "__main__":
         print(f"Mandatory nodes: {mandatory_nodes_list}")
         print(f"Discretionary nodes: {discretionary_nodes_list}")
 
-        '''
-        # Extended power capacities from 1 to 30
-        power_capacities = {
-            # Original values (1-7)
-            1: 1,
-            2: 1,
-            3: 1,
-            4: 3,
-            5: 3,
-            6: 5,
-            7: 0,
-
-            # Extended values (8-30)
-            8: 2,
-            9: 2,
-            10: 4,
-            11: 3,
-            12: 3,
-            13: 5,
-            14: 2,
-            15: 4,
-            16: 6,
-            17: 3,
-            18: 3,
-            19: 5,
-            20: 4,
-            21: 4,
-            22: 6,
-            23: 3,
-            24: 5,
-            25: 8,   # Mandatory node - higher capacity
-            26: 6,   # Mandatory node - medium capacity
-            27: 7,   # Mandatory node - medium-high capacity
-            28: 50,   # Discretionary node
-            29: 40,   # Discretionary node
-            30: 60    # Discretionary node
-        }
-        '''
-
-
-
-
-        '''
-        # SCENARIO 1: Capacità molto basse per forzare overload (AOC alto)
-        power_capacities = {
-            # Nodi 1-7
-            1: 1,    # Capacità minima
-            2: 1,
-            3: 1,
-            4: 1,    # Ridotto da 3 a 1
-            5: 1,    # Ridotto da 3 a 1
-            6: 2,    # Ridotto da 5 a 2
-            7: 0,    # Zero capacità
-            
-            # Nodi 8-24
-            8: 1,
-            9: 1,
-            10: 1,   # Ridotto da 4 a 1
-            11: 1,   # Ridotto da 3 a 1
-            12: 1,
-            13: 1,   # Ridotto da 5 a 1
-            14: 1,
-            15: 1,   # Ridotto da 4 a 1
-            16: 2,   # Ridotto da 6 a 2
-            17: 1,
-            18: 1,
-            19: 1,   # Ridotto da 5 a 1
-            20: 1,   # Ridotto da 4 a 1
-            21: 1,
-            22: 2,   # Ridotto da 6 a 2
-            23: 1,
-            24: 1,   # Ridotto da 5 a 1
-            
-            # Nodi mandatory - capacità molto basse per forzare overload
-            25: 2,   # Ridotto da 8 a 2 (mandatory)
-            26: 2,   # Ridotto da 6 a 2 (mandatory)
-            27: 2,   # Ridotto da 7 a 2 (mandatory)
-            
-            # Nodi discretionary - anche loro con capacità basse
-            28: 3,   # Ridotto da 50 a 3 (discretionary)
-            29: 3,   # Ridotto da 40 a 3 (discretionary)
-            30: 4    # Ridotto da 60 a 4 (discretionary)
-        }
-        '''
-
         power_capacities = generate_capacities_50_nodes()
-
-
-
-
-
-
 
         print(f"Node capacities (used for AOC calculation): {power_capacities}")
 
+        # START TIMING HERE - ONLY THE ALGORITHM EXECUTION
+        print("\n⏱️ Starting algorithm execution timer...")
         start_time = time.time()
-
+        
         # Find best solution with custom cost function
         best_solution, all_solutions = find_best_solution_simplified(
             graph, weak_nodes_list, mandatory_nodes_list, discretionary_nodes_list,
             power_capacities, alpha
         )
-
+        
+        # END TIMING HERE
         end_time = time.time()
         execution_time = end_time - start_time
-
-        print(f"\n⏱️  Calcolo completato in {execution_time:.3f} secondi")
-
+        
+        print(f"\n⏱️ Algorithm execution completed!")
+        print(f"   ⌛ Execution time: {execution_time:.6f} seconds")
+        print(f"   ⌛ Execution time: {execution_time*1000:.3f} milliseconds")
+        
+        # Save execution time to file
+        time_file = save_execution_time(execution_time, graph_index, alpha)
 
         # Visualize and save results
         visualize_best_solution(graph, best_solution, weak_nodes_list, mandatory_nodes_list,
@@ -1569,7 +1527,8 @@ if __name__ == "__main__":
                 'acc_cost': best_solution.acc_cost,
                 'aoc_cost': best_solution.aoc_cost,
                 'total_edge_cost': best_solution.total_cost,
-                'timestamp': datetime.datetime.now().isoformat()
+                'timestamp': datetime.datetime.now().isoformat(),
+                'execution_time_seconds': execution_time  # Added execution time
             },
             'capacity_usage': dict(best_solution.capacity_usage),
             'connected_weak_nodes': list(best_solution.connected_weak),
@@ -1606,18 +1565,20 @@ if __name__ == "__main__":
         print(f"    * AOC × (1-α) ({1-best_solution.alpha}): {best_solution.aoc_cost * (1-best_solution.alpha):.6f}")
         print(f"  - Discretionary used: {best_solution.discretionary_used}")
         print(f"  - Connected: {len(best_solution.connected_weak)}/{len(weak_nodes_list)}")
+        print(f"  - Execution time: {execution_time:.6f} seconds")
 
         print(f"\n📁 Output files saved:")
         print(f"  - Graph visualization: steiner_GRAPH_{graph_index}_CUSTOM_COST_XXX.png")
         print(f"  - Solution summary: steiner_GRAPH_{graph_index}_custom_cost_summary.txt")
         print(f"  - Solution tree pickle: {pickle_filename}")
         print(f"  - Graph analysis file: {graph_analysis_file}")
+        print(f"  - Execution time file: {time_file}")
 
         print(f"\n💡 You can send me the graph analysis JSON file for detailed analysis!")
+        print(f"⏱️ The algorithm execution took {execution_time:.3f} milliseconds")
         print(f"💾 You can import the solution tree with:")
         print(f"   import pickle")
         print(f"   solution = pickle.load(open('{pickle_filename}', 'rb'))")
-        print(f"\n⏱️  Calcolo completato in {execution_time:.3f} secondi")
 
     else:
         print("❌ Multiple configurations mode not implemented in this version")

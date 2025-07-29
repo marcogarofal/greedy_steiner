@@ -1587,6 +1587,23 @@ plot_counter = 0
 power_capacities = {}
 main_graph = None
 
+
+
+def generate_capacities_50_nodes():
+    capacities = {}
+    for i in range(1, 41):
+        capacities[i] = 1
+    for i in range(41, 46):
+        capacities[i] = 3
+    for i in range(46, 51):
+        capacities[i] = 4
+    return capacities
+
+
+
+
+
+
 if __name__ == "__main__":
     # Choose execution mode
     print("🚀 Algorithm Execution Options:")
@@ -1696,7 +1713,7 @@ if __name__ == "__main__":
 
 
 
-
+        '''
         # SCENARIO 1: Capacità molto basse per forzare overload (AOC alto)
         power_capacities = {
             # Nodi 1-7
@@ -1737,6 +1754,13 @@ if __name__ == "__main__":
             29: 3,   # Ridotto da 40 a 3 (discretionary)
             30: 4    # Ridotto da 60 a 4 (discretionary)
         }
+        '''
+
+        power_capacities = generate_capacities_50_nodes()
+
+
+
+
 
 
 

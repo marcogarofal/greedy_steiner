@@ -6,7 +6,6 @@ import pickle
 import os
 import datetime
 import json
-import time
 
 # Add matplotlib backend to avoid display errors
 import matplotlib
@@ -1362,17 +1361,6 @@ main_graph = None
 
 
 
-def generate_capacities_50_nodes():
-    capacities = {}
-    for i in range(1, 41):
-        capacities[i] = 1
-    for i in range(41, 46):
-        capacities[i] = 3
-    for i in range(46, 51):
-        capacities[i] = 4
-    return capacities
-
-
 
 if __name__ == "__main__":
     # Choose execution mode
@@ -1481,7 +1469,7 @@ if __name__ == "__main__":
 
 
 
-        '''
+
         # SCENARIO 1: Capacità molto basse per forzare overload (AOC alto)
         power_capacities = {
             # Nodi 1-7
@@ -1522,9 +1510,6 @@ if __name__ == "__main__":
             29: 3,   # Ridotto da 40 a 3 (discretionary)
             30: 4    # Ridotto da 60 a 4 (discretionary)
         }
-        '''
-
-        power_capacities = generate_capacities_50_nodes()
 
 
 
@@ -1534,19 +1519,11 @@ if __name__ == "__main__":
 
         print(f"Node capacities (used for AOC calculation): {power_capacities}")
 
-        start_time = time.time()
-
         # Find best solution with custom cost function
         best_solution, all_solutions = find_best_solution_simplified(
             graph, weak_nodes_list, mandatory_nodes_list, discretionary_nodes_list,
             power_capacities, alpha
         )
-
-        end_time = time.time()
-        execution_time = end_time - start_time
-
-        print(f"\n⏱️  Calcolo completato in {execution_time:.3f} secondi")
-
 
         # Visualize and save results
         visualize_best_solution(graph, best_solution, weak_nodes_list, mandatory_nodes_list,
@@ -1617,7 +1594,6 @@ if __name__ == "__main__":
         print(f"💾 You can import the solution tree with:")
         print(f"   import pickle")
         print(f"   solution = pickle.load(open('{pickle_filename}', 'rb'))")
-        print(f"\n⏱️  Calcolo completato in {execution_time:.3f} secondi")
 
     else:
         print("❌ Multiple configurations mode not implemented in this version")

@@ -375,7 +375,7 @@ if __name__ == "__main__":
     start_time = time.time()
 
     # PARAMETRI CONFIGURABILI
-    total_nodes = 30
+    total_nodes = 50
     mandatory_percentage = 10    # 10% di nodi mandatory
     discretionary_percentage = 10 # 10% di nodi discretionary
     # I rimanenti 80% saranno weak nodes

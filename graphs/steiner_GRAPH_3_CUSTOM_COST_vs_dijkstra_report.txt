@@ -1,0 +1,428 @@
+================================================================================
+STEINER TREE vs DIJKSTRA SHORTEST PATHS - DETAILED REPORT
+================================================================================
+
+SOLUTION METADATA:
+----------------------------------------
+graph_index: 3
+alpha: 0.5
+final_score: 122.86506862042415
+acc_cost: 0.04942528735632184
+aoc_cost: 0.19630484988452646
+total_edge_cost: 43
+timestamp: 2025-07-29T20:52:39.647001
+
+SUMMARY STATISTICS:
+----------------------------------------
+Total pairs compared: 378
+Dijkstra wins: 158 (41.8%)
+Ties: 220 (58.2%)
+Steiner wins: 0 (0.0%)
+
+LATENCY ANALYSIS - DIJKSTRA WINS:
+----------------------------------------
+Average absolute difference: 2.272
+Average percentage increase: 74.6%
+Std deviation of differences: 2.224
+Max difference: 8.000 (233.3% worse)
+Min difference: 1.000 (20.0% worse)
+Average ratio (Steiner/Dijkstra): 1.746
+
+LATENCY PENALTY DISTRIBUTION:
+  10-25% worse: 8 pairs (5.1%)
+  25-50% worse: 19 pairs (12.0%)
+  50-100% worse: 85 pairs (53.8%)
+  >100% worse: 46 pairs (29.1%)
+
+DETAILED LIST - ALL PATHS WITH LATENCY PENALTY:
+--------------------------------------------------------------------------------
+Pair                 Dijkstra     Steiner      Difference   % Penalty 
+--------------------------------------------------------------------------------
+(1, 27)              4.000        12.000       8.000        200.0     %
+(2, 27)              4.000        12.000       8.000        200.0     %
+(4, 27)              4.000        12.000       8.000        200.0     %
+(5, 27)              4.000        12.000       8.000        200.0     %
+(13, 27)             4.000        12.000       8.000        200.0     %
+(21, 27)             4.000        12.000       8.000        200.0     %
+(3, 27)              4.000        11.000       7.000        175.0     %
+(6, 27)              4.000        11.000       7.000        175.0     %
+(7, 27)              4.000        11.000       7.000        175.0     %
+(8, 27)              5.000        12.000       7.000        140.0     %
+(9, 27)              4.000        11.000       7.000        175.0     %
+(10, 27)             4.000        11.000       7.000        175.0     %
+(11, 27)             4.000        11.000       7.000        175.0     %
+(12, 27)             4.000        11.000       7.000        175.0     %
+(14, 27)             4.000        11.000       7.000        175.0     %
+(15, 27)             4.000        11.000       7.000        175.0     %
+(16, 27)             4.000        11.000       7.000        175.0     %
+(17, 27)             5.000        12.000       7.000        140.0     %
+(18, 27)             5.000        12.000       7.000        140.0     %
+(19, 27)             4.000        11.000       7.000        175.0     %
+(20, 27)             4.000        11.000       7.000        175.0     %
+(22, 27)             4.000        11.000       7.000        175.0     %
+(23, 27)             4.000        11.000       7.000        175.0     %
+(24, 27)             4.000        11.000       7.000        175.0     %
+(27, 28)             3.000        10.000       7.000        233.3     %
+(1, 26)              4.000        7.000        3.000        75.0      %
+(2, 26)              4.000        7.000        3.000        75.0      %
+(4, 26)              4.000        7.000        3.000        75.0      %
+(5, 26)              4.000        7.000        3.000        75.0      %
+(13, 26)             4.000        7.000        3.000        75.0      %
+(21, 26)             4.000        7.000        3.000        75.0      %
+(25, 27)             5.000        8.000        3.000        60.0      %
+(1, 2)               2.000        4.000        2.000        100.0     %
+(1, 4)               2.000        4.000        2.000        100.0     %
+(1, 5)               2.000        4.000        2.000        100.0     %
+(1, 13)              2.000        4.000        2.000        100.0     %
+(1, 21)              2.000        4.000        2.000        100.0     %
+(2, 4)               2.000        4.000        2.000        100.0     %
+(2, 5)               2.000        4.000        2.000        100.0     %
+(2, 13)              2.000        4.000        2.000        100.0     %
+(2, 21)              2.000        4.000        2.000        100.0     %
+(4, 5)               2.000        4.000        2.000        100.0     %
+(4, 13)              2.000        4.000        2.000        100.0     %
+(4, 21)              2.000        4.000        2.000        100.0     %
+(5, 13)              2.000        4.000        2.000        100.0     %
+(5, 21)              2.000        4.000        2.000        100.0     %
+(6, 26)              4.000        6.000        2.000        50.0      %
+(8, 13)              2.000        4.000        2.000        100.0     %
+(8, 17)              2.000        4.000        2.000        100.0     %
+(8, 18)              2.000        4.000        2.000        100.0     %
+(8, 26)              5.000        7.000        2.000        40.0      %
+(9, 26)              4.000        6.000        2.000        50.0      %
+(11, 26)             4.000        6.000        2.000        50.0      %
+(13, 17)             2.000        4.000        2.000        100.0     %
+(13, 18)             2.000        4.000        2.000        100.0     %
+(13, 21)             2.000        4.000        2.000        100.0     %
+(15, 26)             4.000        6.000        2.000        50.0      %
+(17, 18)             2.000        4.000        2.000        100.0     %
+(17, 26)             5.000        7.000        2.000        40.0      %
+(18, 26)             5.000        7.000        2.000        40.0      %
+(19, 26)             4.000        6.000        2.000        50.0      %
+(20, 26)             4.000        6.000        2.000        50.0      %
+(24, 26)             4.000        6.000        2.000        50.0      %
+(1, 6)               2.000        3.000        1.000        50.0      %
+(1, 8)               3.000        4.000        1.000        33.3      %
+(1, 9)               2.000        3.000        1.000        50.0      %
+(1, 11)              2.000        3.000        1.000        50.0      %
+(1, 15)              2.000        3.000        1.000        50.0      %
+(1, 17)              3.000        4.000        1.000        33.3      %
+(1, 18)              3.000        4.000        1.000        33.3      %
+(1, 19)              2.000        3.000        1.000        50.0      %
+(1, 20)              2.000        3.000        1.000        50.0      %
+(1, 24)              2.000        3.000        1.000        50.0      %
+(2, 6)               2.000        3.000        1.000        50.0      %
+(2, 8)               3.000        4.000        1.000        33.3      %
+(2, 9)               2.000        3.000        1.000        50.0      %
+(2, 11)              2.000        3.000        1.000        50.0      %
+(2, 15)              2.000        3.000        1.000        50.0      %
+(2, 17)              3.000        4.000        1.000        33.3      %
+(2, 18)              3.000        4.000        1.000        33.3      %
+(2, 19)              2.000        3.000        1.000        50.0      %
+(2, 20)              2.000        3.000        1.000        50.0      %
+(2, 24)              2.000        3.000        1.000        50.0      %
+(3, 8)               2.000        3.000        1.000        50.0      %
+(3, 13)              2.000        3.000        1.000        50.0      %
+(3, 17)              2.000        3.000        1.000        50.0      %
+(3, 18)              2.000        3.000        1.000        50.0      %
+(3, 26)              5.000        6.000        1.000        20.0      %
+(4, 6)               2.000        3.000        1.000        50.0      %
+(4, 8)               3.000        4.000        1.000        33.3      %
+(4, 9)               2.000        3.000        1.000        50.0      %
+(4, 11)              2.000        3.000        1.000        50.0      %
+(4, 15)              2.000        3.000        1.000        50.0      %
+(4, 17)              3.000        4.000        1.000        33.3      %
+(4, 18)              3.000        4.000        1.000        33.3      %
+(4, 19)              2.000        3.000        1.000        50.0      %
+(4, 20)              2.000        3.000        1.000        50.0      %
+(4, 24)              2.000        3.000        1.000        50.0      %
+(5, 6)               2.000        3.000        1.000        50.0      %
+(5, 8)               3.000        4.000        1.000        33.3      %
+(5, 9)               2.000        3.000        1.000        50.0      %
+(5, 11)              2.000        3.000        1.000        50.0      %
+(5, 15)              2.000        3.000        1.000        50.0      %
+(5, 17)              3.000        4.000        1.000        33.3      %
+(5, 18)              3.000        4.000        1.000        33.3      %
+(5, 19)              2.000        3.000        1.000        50.0      %
+(5, 20)              2.000        3.000        1.000        50.0      %
+(5, 24)              2.000        3.000        1.000        50.0      %
+(6, 8)               2.000        3.000        1.000        50.0      %
+(6, 13)              2.000        3.000        1.000        50.0      %
+(6, 17)              2.000        3.000        1.000        50.0      %
+(6, 18)              2.000        3.000        1.000        50.0      %
+(6, 21)              2.000        3.000        1.000        50.0      %
+(7, 26)              5.000        6.000        1.000        20.0      %
+(8, 10)              2.000        3.000        1.000        50.0      %
+(8, 12)              2.000        3.000        1.000        50.0      %
+(8, 16)              2.000        3.000        1.000        50.0      %
+(8, 20)              2.000        3.000        1.000        50.0      %
+(8, 21)              3.000        4.000        1.000        33.3      %
+(8, 23)              2.000        3.000        1.000        50.0      %
+(8, 24)              2.000        3.000        1.000        50.0      %
+(9, 13)              2.000        3.000        1.000        50.0      %
+(9, 21)              2.000        3.000        1.000        50.0      %
+(10, 13)             2.000        3.000        1.000        50.0      %
+(10, 17)             2.000        3.000        1.000        50.0      %
+(10, 18)             2.000        3.000        1.000        50.0      %
+(10, 26)             5.000        6.000        1.000        20.0      %
+(11, 13)             2.000        3.000        1.000        50.0      %
+(11, 21)             2.000        3.000        1.000        50.0      %
+(12, 13)             2.000        3.000        1.000        50.0      %
+(12, 17)             2.000        3.000        1.000        50.0      %
+(12, 18)             2.000        3.000        1.000        50.0      %
+(12, 26)             5.000        6.000        1.000        20.0      %
+(13, 15)             2.000        3.000        1.000        50.0      %
+(13, 16)             2.000        3.000        1.000        50.0      %
+(13, 19)             2.000        3.000        1.000        50.0      %
+(13, 20)             2.000        3.000        1.000        50.0      %
+(13, 23)             2.000        3.000        1.000        50.0      %
+(13, 24)             2.000        3.000        1.000        50.0      %
+(14, 26)             5.000        6.000        1.000        20.0      %
+(15, 21)             2.000        3.000        1.000        50.0      %
+(16, 17)             2.000        3.000        1.000        50.0      %
+(16, 18)             2.000        3.000        1.000        50.0      %
+(16, 26)             5.000        6.000        1.000        20.0      %
+(17, 20)             2.000        3.000        1.000        50.0      %
+(17, 21)             3.000        4.000        1.000        33.3      %
+(17, 23)             2.000        3.000        1.000        50.0      %
+(17, 24)             2.000        3.000        1.000        50.0      %
+(18, 20)             2.000        3.000        1.000        50.0      %
+(18, 21)             3.000        4.000        1.000        33.3      %
+(18, 23)             2.000        3.000        1.000        50.0      %
+(18, 24)             2.000        3.000        1.000        50.0      %
+(19, 21)             2.000        3.000        1.000        50.0      %
+(20, 21)             2.000        3.000        1.000        50.0      %
+(21, 24)             2.000        3.000        1.000        50.0      %
+(22, 26)             5.000        6.000        1.000        20.0      %
+(23, 26)             5.000        6.000        1.000        20.0      %
+(26, 28)             4.000        5.000        1.000        25.0      %
+
+----------------------------------------
+OVERALL NETWORK LATENCY IMPACT:
+Total Dijkstra latency: 973.00
+Total Steiner latency: 1332.00
+Overall latency penalty: 36.9%
+
+
+DETAILED LIST - TIES (ZERO LATENCY PENALTY):
+----------------------------------------
+1. Pair (1, 3): distance = 3.000 (0% penalty)
+2. Pair (1, 7): distance = 3.000 (0% penalty)
+3. Pair (1, 10): distance = 3.000 (0% penalty)
+4. Pair (1, 12): distance = 3.000 (0% penalty)
+5. Pair (1, 14): distance = 3.000 (0% penalty)
+6. Pair (1, 16): distance = 3.000 (0% penalty)
+7. Pair (1, 22): distance = 3.000 (0% penalty)
+8. Pair (1, 23): distance = 3.000 (0% penalty)
+9. Pair (1, 25): distance = 4.000 (0% penalty)
+10. Pair (1, 28): distance = 2.000 (0% penalty)
+11. Pair (2, 3): distance = 3.000 (0% penalty)
+12. Pair (2, 7): distance = 3.000 (0% penalty)
+13. Pair (2, 10): distance = 3.000 (0% penalty)
+14. Pair (2, 12): distance = 3.000 (0% penalty)
+15. Pair (2, 14): distance = 3.000 (0% penalty)
+16. Pair (2, 16): distance = 3.000 (0% penalty)
+17. Pair (2, 22): distance = 3.000 (0% penalty)
+18. Pair (2, 23): distance = 3.000 (0% penalty)
+19. Pair (2, 25): distance = 4.000 (0% penalty)
+20. Pair (2, 28): distance = 2.000 (0% penalty)
+21. Pair (3, 4): distance = 3.000 (0% penalty)
+22. Pair (3, 5): distance = 3.000 (0% penalty)
+23. Pair (3, 6): distance = 2.000 (0% penalty)
+24. Pair (3, 7): distance = 2.000 (0% penalty)
+25. Pair (3, 9): distance = 2.000 (0% penalty)
+26. Pair (3, 10): distance = 2.000 (0% penalty)
+27. Pair (3, 11): distance = 2.000 (0% penalty)
+28. Pair (3, 12): distance = 2.000 (0% penalty)
+29. Pair (3, 14): distance = 2.000 (0% penalty)
+30. Pair (3, 15): distance = 2.000 (0% penalty)
+31. Pair (3, 16): distance = 2.000 (0% penalty)
+32. Pair (3, 19): distance = 2.000 (0% penalty)
+33. Pair (3, 20): distance = 2.000 (0% penalty)
+34. Pair (3, 21): distance = 3.000 (0% penalty)
+35. Pair (3, 22): distance = 2.000 (0% penalty)
+36. Pair (3, 23): distance = 2.000 (0% penalty)
+37. Pair (3, 24): distance = 2.000 (0% penalty)
+38. Pair (3, 25): distance = 3.000 (0% penalty)
+39. Pair (3, 28): distance = 1.000 (0% penalty)
+40. Pair (4, 7): distance = 3.000 (0% penalty)
+41. Pair (4, 10): distance = 3.000 (0% penalty)
+42. Pair (4, 12): distance = 3.000 (0% penalty)
+43. Pair (4, 14): distance = 3.000 (0% penalty)
+44. Pair (4, 16): distance = 3.000 (0% penalty)
+45. Pair (4, 22): distance = 3.000 (0% penalty)
+46. Pair (4, 23): distance = 3.000 (0% penalty)
+47. Pair (4, 25): distance = 4.000 (0% penalty)
+48. Pair (4, 28): distance = 2.000 (0% penalty)
+49. Pair (5, 7): distance = 3.000 (0% penalty)
+50. Pair (5, 10): distance = 3.000 (0% penalty)
+51. Pair (5, 12): distance = 3.000 (0% penalty)
+52. Pair (5, 14): distance = 3.000 (0% penalty)
+53. Pair (5, 16): distance = 3.000 (0% penalty)
+54. Pair (5, 22): distance = 3.000 (0% penalty)
+55. Pair (5, 23): distance = 3.000 (0% penalty)
+56. Pair (5, 25): distance = 4.000 (0% penalty)
+57. Pair (5, 28): distance = 2.000 (0% penalty)
+58. Pair (6, 7): distance = 2.000 (0% penalty)
+59. Pair (6, 9): distance = 2.000 (0% penalty)
+60. Pair (6, 10): distance = 2.000 (0% penalty)
+61. Pair (6, 11): distance = 2.000 (0% penalty)
+62. Pair (6, 12): distance = 2.000 (0% penalty)
+63. Pair (6, 14): distance = 2.000 (0% penalty)
+64. Pair (6, 15): distance = 2.000 (0% penalty)
+65. Pair (6, 16): distance = 2.000 (0% penalty)
+66. Pair (6, 19): distance = 2.000 (0% penalty)
+67. Pair (6, 20): distance = 2.000 (0% penalty)
+68. Pair (6, 22): distance = 2.000 (0% penalty)
+69. Pair (6, 23): distance = 2.000 (0% penalty)
+70. Pair (6, 24): distance = 2.000 (0% penalty)
+71. Pair (6, 25): distance = 3.000 (0% penalty)
+72. Pair (6, 28): distance = 1.000 (0% penalty)
+73. Pair (7, 8): distance = 3.000 (0% penalty)
+74. Pair (7, 9): distance = 2.000 (0% penalty)
+75. Pair (7, 10): distance = 2.000 (0% penalty)
+76. Pair (7, 11): distance = 2.000 (0% penalty)
+77. Pair (7, 12): distance = 2.000 (0% penalty)
+78. Pair (7, 13): distance = 3.000 (0% penalty)
+79. Pair (7, 14): distance = 2.000 (0% penalty)
+80. Pair (7, 15): distance = 2.000 (0% penalty)
+81. Pair (7, 16): distance = 2.000 (0% penalty)
+82. Pair (7, 17): distance = 3.000 (0% penalty)
+83. Pair (7, 18): distance = 3.000 (0% penalty)
+84. Pair (7, 19): distance = 2.000 (0% penalty)
+85. Pair (7, 20): distance = 2.000 (0% penalty)
+86. Pair (7, 21): distance = 3.000 (0% penalty)
+87. Pair (7, 22): distance = 2.000 (0% penalty)
+88. Pair (7, 23): distance = 2.000 (0% penalty)
+89. Pair (7, 24): distance = 2.000 (0% penalty)
+90. Pair (7, 25): distance = 3.000 (0% penalty)
+91. Pair (7, 28): distance = 1.000 (0% penalty)
+92. Pair (8, 9): distance = 3.000 (0% penalty)
+93. Pair (8, 11): distance = 3.000 (0% penalty)
+94. Pair (8, 14): distance = 3.000 (0% penalty)
+95. Pair (8, 15): distance = 3.000 (0% penalty)
+96. Pair (8, 19): distance = 3.000 (0% penalty)
+97. Pair (8, 22): distance = 3.000 (0% penalty)
+98. Pair (8, 25): distance = 4.000 (0% penalty)
+99. Pair (8, 28): distance = 2.000 (0% penalty)
+100. Pair (9, 10): distance = 2.000 (0% penalty)
+101. Pair (9, 11): distance = 2.000 (0% penalty)
+102. Pair (9, 12): distance = 2.000 (0% penalty)
+103. Pair (9, 14): distance = 2.000 (0% penalty)
+104. Pair (9, 15): distance = 2.000 (0% penalty)
+105. Pair (9, 16): distance = 2.000 (0% penalty)
+106. Pair (9, 17): distance = 3.000 (0% penalty)
+107. Pair (9, 18): distance = 3.000 (0% penalty)
+108. Pair (9, 19): distance = 2.000 (0% penalty)
+109. Pair (9, 20): distance = 2.000 (0% penalty)
+110. Pair (9, 22): distance = 2.000 (0% penalty)
+111. Pair (9, 23): distance = 2.000 (0% penalty)
+112. Pair (9, 24): distance = 2.000 (0% penalty)
+113. Pair (9, 25): distance = 3.000 (0% penalty)
+114. Pair (9, 28): distance = 1.000 (0% penalty)
+115. Pair (10, 11): distance = 2.000 (0% penalty)
+116. Pair (10, 12): distance = 2.000 (0% penalty)
+117. Pair (10, 14): distance = 2.000 (0% penalty)
+118. Pair (10, 15): distance = 2.000 (0% penalty)
+119. Pair (10, 16): distance = 2.000 (0% penalty)
+120. Pair (10, 19): distance = 2.000 (0% penalty)
+121. Pair (10, 20): distance = 2.000 (0% penalty)
+122. Pair (10, 21): distance = 3.000 (0% penalty)
+123. Pair (10, 22): distance = 2.000 (0% penalty)
+124. Pair (10, 23): distance = 2.000 (0% penalty)
+125. Pair (10, 24): distance = 2.000 (0% penalty)
+126. Pair (10, 25): distance = 3.000 (0% penalty)
+127. Pair (10, 28): distance = 1.000 (0% penalty)
+128. Pair (11, 12): distance = 2.000 (0% penalty)
+129. Pair (11, 14): distance = 2.000 (0% penalty)
+130. Pair (11, 15): distance = 2.000 (0% penalty)
+131. Pair (11, 16): distance = 2.000 (0% penalty)
+132. Pair (11, 17): distance = 3.000 (0% penalty)
+133. Pair (11, 18): distance = 3.000 (0% penalty)
+134. Pair (11, 19): distance = 2.000 (0% penalty)
+135. Pair (11, 20): distance = 2.000 (0% penalty)
+136. Pair (11, 22): distance = 2.000 (0% penalty)
+137. Pair (11, 23): distance = 2.000 (0% penalty)
+138. Pair (11, 24): distance = 2.000 (0% penalty)
+139. Pair (11, 25): distance = 3.000 (0% penalty)
+140. Pair (11, 28): distance = 1.000 (0% penalty)
+141. Pair (12, 14): distance = 2.000 (0% penalty)
+142. Pair (12, 15): distance = 2.000 (0% penalty)
+143. Pair (12, 16): distance = 2.000 (0% penalty)
+144. Pair (12, 19): distance = 2.000 (0% penalty)
+145. Pair (12, 20): distance = 2.000 (0% penalty)
+146. Pair (12, 21): distance = 3.000 (0% penalty)
+147. Pair (12, 22): distance = 2.000 (0% penalty)
+148. Pair (12, 23): distance = 2.000 (0% penalty)
+149. Pair (12, 24): distance = 2.000 (0% penalty)
+150. Pair (12, 25): distance = 3.000 (0% penalty)
+151. Pair (12, 28): distance = 1.000 (0% penalty)
+152. Pair (13, 14): distance = 3.000 (0% penalty)
+153. Pair (13, 22): distance = 3.000 (0% penalty)
+154. Pair (13, 25): distance = 4.000 (0% penalty)
+155. Pair (13, 28): distance = 2.000 (0% penalty)
+156. Pair (14, 15): distance = 2.000 (0% penalty)
+157. Pair (14, 16): distance = 2.000 (0% penalty)
+158. Pair (14, 17): distance = 3.000 (0% penalty)
+159. Pair (14, 18): distance = 3.000 (0% penalty)
+160. Pair (14, 19): distance = 2.000 (0% penalty)
+161. Pair (14, 20): distance = 2.000 (0% penalty)
+162. Pair (14, 21): distance = 3.000 (0% penalty)
+163. Pair (14, 22): distance = 2.000 (0% penalty)
+164. Pair (14, 23): distance = 2.000 (0% penalty)
+165. Pair (14, 24): distance = 2.000 (0% penalty)
+166. Pair (14, 25): distance = 3.000 (0% penalty)
+167. Pair (14, 28): distance = 1.000 (0% penalty)
+168. Pair (15, 16): distance = 2.000 (0% penalty)
+169. Pair (15, 17): distance = 3.000 (0% penalty)
+170. Pair (15, 18): distance = 3.000 (0% penalty)
+171. Pair (15, 19): distance = 2.000 (0% penalty)
+172. Pair (15, 20): distance = 2.000 (0% penalty)
+173. Pair (15, 22): distance = 2.000 (0% penalty)
+174. Pair (15, 23): distance = 2.000 (0% penalty)
+175. Pair (15, 24): distance = 2.000 (0% penalty)
+176. Pair (15, 25): distance = 3.000 (0% penalty)
+177. Pair (15, 28): distance = 1.000 (0% penalty)
+178. Pair (16, 19): distance = 2.000 (0% penalty)
+179. Pair (16, 20): distance = 2.000 (0% penalty)
+180. Pair (16, 21): distance = 3.000 (0% penalty)
+181. Pair (16, 22): distance = 2.000 (0% penalty)
+182. Pair (16, 23): distance = 2.000 (0% penalty)
+183. Pair (16, 24): distance = 2.000 (0% penalty)
+184. Pair (16, 25): distance = 3.000 (0% penalty)
+185. Pair (16, 28): distance = 1.000 (0% penalty)
+186. Pair (17, 19): distance = 3.000 (0% penalty)
+187. Pair (17, 22): distance = 3.000 (0% penalty)
+188. Pair (17, 25): distance = 4.000 (0% penalty)
+189. Pair (17, 28): distance = 2.000 (0% penalty)
+190. Pair (18, 19): distance = 3.000 (0% penalty)
+191. Pair (18, 22): distance = 3.000 (0% penalty)
+192. Pair (18, 25): distance = 4.000 (0% penalty)
+193. Pair (18, 28): distance = 2.000 (0% penalty)
+194. Pair (19, 20): distance = 2.000 (0% penalty)
+195. Pair (19, 22): distance = 2.000 (0% penalty)
+196. Pair (19, 23): distance = 2.000 (0% penalty)
+197. Pair (19, 24): distance = 2.000 (0% penalty)
+198. Pair (19, 25): distance = 3.000 (0% penalty)
+199. Pair (19, 28): distance = 1.000 (0% penalty)
+200. Pair (20, 22): distance = 2.000 (0% penalty)
+201. Pair (20, 23): distance = 2.000 (0% penalty)
+202. Pair (20, 24): distance = 2.000 (0% penalty)
+203. Pair (20, 25): distance = 3.000 (0% penalty)
+204. Pair (20, 28): distance = 1.000 (0% penalty)
+205. Pair (21, 22): distance = 3.000 (0% penalty)
+206. Pair (21, 23): distance = 3.000 (0% penalty)
+207. Pair (21, 25): distance = 4.000 (0% penalty)
+208. Pair (21, 28): distance = 2.000 (0% penalty)
+209. Pair (22, 23): distance = 2.000 (0% penalty)
+210. Pair (22, 24): distance = 2.000 (0% penalty)
+211. Pair (22, 25): distance = 3.000 (0% penalty)
+212. Pair (22, 28): distance = 1.000 (0% penalty)
+213. Pair (23, 24): distance = 2.000 (0% penalty)
+214. Pair (23, 25): distance = 3.000 (0% penalty)
+215. Pair (23, 28): distance = 1.000 (0% penalty)
+216. Pair (24, 25): distance = 3.000 (0% penalty)
+217. Pair (24, 28): distance = 1.000 (0% penalty)
+218. Pair (25, 26): distance = 3.000 (0% penalty)
+219. Pair (25, 28): distance = 2.000 (0% penalty)
+220. Pair (26, 27): distance = 5.000 (0% penalty)

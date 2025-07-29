@@ -1,0 +1,66 @@
+================================================================================
+REPORT RIMOZIONE NODI - SOLUZIONI MODIFICATE
+Data: 2025-07-29 15:47:14
+================================================================================
+
+NODI RIMOSSI (4):
+----------------------------------------
+1. Nodo 41
+2. Nodo 42
+3. Nodo 43
+4. Nodo 45
+
+
+SOLUZIONI MODIFICATE SALVATE (8):
+----------------------------------------
+
+Nodo rimosso: 41
+  - Algoritmo: dijkstra
+  - File: dijistra_without_node_41_20250729_154714.pickle
+
+Nodo rimosso: 41
+  - Algoritmo: steiner
+  - File: steiner_without_node_41_20250729_154714.pickle
+
+Nodo rimosso: 42
+  - Algoritmo: dijkstra
+  - File: dijistra_without_node_42_20250729_154714.pickle
+
+Nodo rimosso: 42
+  - Algoritmo: steiner
+  - File: steiner_without_node_42_20250729_154714.pickle
+
+Nodo rimosso: 43
+  - Algoritmo: dijkstra
+  - File: dijistra_without_node_43_20250729_154714.pickle
+
+Nodo rimosso: 43
+  - Algoritmo: steiner
+  - File: steiner_without_node_43_20250729_154714.pickle
+
+Nodo rimosso: 45
+  - Algoritmo: dijkstra
+  - File: dijistra_without_node_45_20250729_154714.pickle
+
+Nodo rimosso: 45
+  - Algoritmo: steiner
+  - File: steiner_without_node_45_20250729_154714.pickle
+
+
+GRAFI MODIFICATI SALVATI (4):
+----------------------------------------
+  - grafo_without_node_41_20250729_154714.pickle
+  - grafo_without_node_42_20250729_154714.pickle
+  - grafo_without_node_43_20250729_154714.pickle
+  - grafo_without_node_45_20250729_154714.pickle
+
+
+ISTRUZIONI PER L'USO:
+----------------------------------------
+1. Le soluzioni modificate sono nella cartella 'modified_solutions'
+2. I grafi modificati sono nella cartella 'modified_graphs'
+3. I file delle soluzioni mantengono la struttura originale
+4. Possono essere caricati direttamente per il confronto
+
+NOTA: I file delle soluzioni contengono già l'albero modificato
+      senza il nodo rimosso, pronti per l'analisi.
