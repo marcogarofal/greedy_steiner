@@ -810,142 +810,351 @@ def solve_with_discretionary_subset(graph, weak_nodes, mandatory_nodes, discreti
 
 
 
-
-
-
-
-
-def find_best_solution_simplified(graph, weak_nodes, mandatory_nodes, all_discretionary_nodes,
-                                 power_capacities, alpha=0.5):
+def solve_dijkstra_all_nodes(graph, weak_nodes, mandatory_nodes, discretionary_nodes,
+                            power_capacities, graph_info="", alpha=0.5):
     """
-    Find the best solution by testing ONLY two cases with custom cost function
+    Solve the problem treating ALL nodes (mandatory + discretionary) as required nodes.
+    This is a Dijkstra-like approach where the final tree must include ALL power nodes.
+    """
+    steiner_tree = nx.Graph()
+
+    # ALL power nodes (mandatory + discretionary) must be in the final tree
+    all_power_nodes = mandatory_nodes + discretionary_nodes
+    capacity_usage = {node: 0 for node in all_power_nodes}
+    connected_weak = set()
+    failed_connections = []
+
+    print(f"    🔧 DIJKSTRA-LIKE APPROACH: All power nodes must be included")
+    print(f"    Mandatory nodes: {mandatory_nodes}")
+    print(f"    Discretionary nodes: {discretionary_nodes}")
+    print(f"    Total power nodes to connect: {len(all_power_nodes)}")
+
+    # Step 1: Connect all power nodes (mandatory + discretionary) together
+    print(f"\n    📊 PHASE 1: Connecting ALL power nodes together")
+
+    if len(all_power_nodes) > 1:
+        # Create a subgraph with all power nodes
+        power_subgraph = graph.subgraph(all_power_nodes).copy()
+
+        if nx.is_connected(power_subgraph):
+            # Find minimum spanning tree connecting all power nodes
+            power_mst = nx.minimum_spanning_tree(power_subgraph, weight='weight')
+
+            # Add all edges from the MST to the Steiner tree
+            for u, v in power_mst.edges():
+                steiner_tree.add_edge(u, v, weight=graph[u][v]['weight'])
+                print(f"    ✓ Connected power nodes: {u} -- {v} (weight: {graph[u][v]['weight']})")
+        else:
+            # If power nodes are not directly connected, find paths through other nodes
+            print(f"    ⚠️  Power nodes are not directly connected! Finding indirect paths...")
+
+            # Use a more sophisticated approach to connect all power nodes
+            power_set = set(all_power_nodes)
+            connected_power = set([all_power_nodes[0]])  # Start with first power node
+
+            while connected_power != power_set:
+                # Find shortest path from any connected to any unconnected power node
+                best_path = None
+                best_cost = float('inf')
+
+                for connected in connected_power:
+                    for unconnected in power_set - connected_power:
+                        try:
+                            path = nx.shortest_path(graph, connected, unconnected, weight='weight')
+                            cost = nx.shortest_path_length(graph, connected, unconnected, weight='weight')
+
+                            if cost < best_cost:
+                                best_cost = cost
+                                best_path = path
+                        except nx.NetworkXNoPath:
+                            continue
+
+                if best_path:
+                    # Add the path to the Steiner tree
+                    for i in range(len(best_path) - 1):
+                        steiner_tree.add_edge(best_path[i], best_path[i+1],
+                                            weight=graph[best_path[i]][best_path[i+1]]['weight'])
+
+                    # Mark power nodes in the path as connected
+                    for node in best_path:
+                        if node in power_set:
+                            connected_power.add(node)
+
+                    print(f"    ✓ Connected power nodes via path: {best_path} (cost: {best_cost})")
+                else:
+                    print(f"    ❌ ERROR: Cannot connect all power nodes!")
+                    break
+
+    print(f"    📊 Power nodes connection complete. Current edges: {len(steiner_tree.edges())}")
+
+    # Step 2: Connect weak nodes to the power network
+    print(f"\n    📊 PHASE 2: Connecting weak nodes to power network")
+
+    # Find all possible paths for each weak node to ANY power node
+    all_weak_options = {}
+    for weak_node in weak_nodes:
+        paths = find_all_paths_to_power_nodes(graph, weak_node, all_power_nodes)
+        all_weak_options[weak_node] = paths
+
+        print(f"    🛤️  Paths found for weak node {weak_node}: {len(paths)} options")
+        for i, path_info in enumerate(paths[:3]):  # Show first 3 paths
+            print(f"       {i+1}. {path_info['path']} → cost: {path_info['cost']}, target: {path_info['target_power']}")
+
+    # Calculate incremental costs for all options
+    all_options = []
+    for weak_node, paths in all_weak_options.items():
+        for path_info in paths:
+            # Calculate incremental cost similar to before
+            path_edges = [(path_info['path'][i], path_info['path'][i+1])
+                         for i in range(len(path_info['path'])-1)]
+
+            # Simulate adding this path
+            simulated_capacity_usage = capacity_usage.copy()
+            simulated_tree_edges = list(steiner_tree.edges())
+
+            target_power = path_info['target_power']
+            path = path_info['path']
+
+            # Update simulated capacity usage
+            simulated_capacity_usage[target_power] = simulated_capacity_usage.get(target_power, 0) + 1
+
+            # Add path edges to simulation
+            for i in range(len(path) - 1):
+                simulated_tree_edges.append((path[i], path[i+1]))
+
+            # Get all nodes in simulated solution
+            simulated_selected_nodes = set()
+            for u, v in simulated_tree_edges:
+                simulated_selected_nodes.add(u)
+                simulated_selected_nodes.add(v)
+
+            # Calculate ACC increment
+            edge_weight_sum = sum(graph[u][v]['weight'] for u, v in path_edges
+                                if not steiner_tree.has_edge(u, v))  # Only count new edges
+            n = len(graph.nodes())
+            incremental_acc = edge_weight_sum / (n * (n - 1)) if n > 1 else 0
+
+            # Calculate AOC increment
+            current_aoc_cost = 0
+            for node in all_power_nodes:
+                max_capacity = power_capacities.get(node, float('inf'))
+                current_usage = capacity_usage.get(node, 0)
+
+                if max_capacity != float('inf') and max_capacity > 0:
+                    overload_j = max(0.0, current_usage - max_capacity)
+                    d_j = len([edge for edge in steiner_tree.edges() if node in edge])
+                    current_aoc_cost += overload_j * d_j
+
+            new_aoc_cost = 0
+            for node in all_power_nodes:
+                max_capacity = power_capacities.get(node, float('inf'))
+                new_usage = simulated_capacity_usage.get(node, 0)
+
+                if max_capacity != float('inf') and max_capacity > 0:
+                    overload_j = max(0.0, new_usage - max_capacity)
+                    d_j = len([edge for edge in simulated_tree_edges if node in edge])
+                    new_aoc_cost += overload_j * d_j
+
+            incremental_aoc = (new_aoc_cost - current_aoc_cost) / n
+
+            # Combined incremental cost
+            incremental_cost = alpha * incremental_acc + (1 - alpha) * incremental_aoc
+
+            all_options.append({
+                'weak_node': weak_node,
+                'incremental_cost': incremental_cost,
+                'incremental_acc': incremental_acc,
+                'incremental_aoc': incremental_aoc,
+                'edge_cost': edge_weight_sum,
+                **path_info
+            })
+
+    # Sort by incremental cost
+    all_options.sort(key=lambda x: x['incremental_cost'])
+
+    # Connect weak nodes using greedy approach
+    print(f"\n    🎯 Connecting weak nodes using greedy approach:")
+    for option in all_options:
+        weak_node = option['weak_node']
+
+        if weak_node in connected_weak:
+            continue
+
+        path = option['path']
+        target_power = option['target_power']
+
+        # Update capacity usage
+        capacity_usage[target_power] += 1
+
+        # Add path edges
+        new_edges_added = 0
+        for i in range(len(path) - 1):
+            if not steiner_tree.has_edge(path[i], path[i+1]):
+                steiner_tree.add_edge(path[i], path[i+1], weight=graph[path[i]][path[i+1]]['weight'])
+                new_edges_added += 1
+
+        connected_weak.add(weak_node)
+
+        print(f"    ✓ Connected {weak_node} to {target_power} via {path}")
+        print(f"       └─ New edges added: {new_edges_added}, Incremental cost: {option['incremental_cost']:.6f}")
+        print(f"       └─ Updated capacity at {target_power}: {capacity_usage[target_power]}")
+
+    # Handle any remaining weak nodes
+    remaining_weak = set(weak_nodes) - connected_weak
+    for weak_node in remaining_weak:
+        failed_connections.append(weak_node)
+        print(f"    ✗ Failed to connect {weak_node}")
+
+    # Final verification
+    nodes_in_tree = set()
+    for u, v in steiner_tree.edges():
+        nodes_in_tree.add(u)
+        nodes_in_tree.add(v)
+
+    missing_power = set(all_power_nodes) - nodes_in_tree
+    if missing_power:
+        print(f"\n    ❌ ERROR: Missing power nodes in final tree: {missing_power}")
+    else:
+        print(f"\n    ✅ All {len(all_power_nodes)} power nodes are included in the final tree")
+
+    print(f"    ✅ Connected weak nodes: {len(connected_weak)}/{len(weak_nodes)}")
+
+    # Calculate statistics
+    total_cost = sum(graph[u][v]['weight'] for u, v in steiner_tree.edges())
+
+    # Calculate capacity cost
+    capacity_cost = 0
+    nodes_actually_used = [n for n in capacity_usage if capacity_usage[n] > 0 and power_capacities.get(n, 0) > 0]
+
+    if nodes_actually_used:
+        capacity_ratios = []
+        for node in nodes_actually_used:
+            if power_capacities[node] > 0:
+                ratio = capacity_usage[node] / power_capacities[node]
+                capacity_ratios.append(ratio)
+
+        capacity_cost = sum(capacity_ratios) / len(capacity_ratios)
+
+    # For this approach, all discretionary nodes are "used" by definition
+    discretionary_used = sorted(discretionary_nodes)
+
+    return Solution(steiner_tree, capacity_usage, connected_weak, failed_connections,
+                   total_cost, capacity_cost, discretionary_used, graph_info, alpha=alpha)
+
+
+def find_all_paths_to_power_nodes(graph, weak_node, power_nodes, max_hops=4):
+    """
+    Find ALL possible paths from a weak node to any power node (mandatory or discretionary).
+    Since all power nodes are required, we can connect to any of them.
+    """
+    all_paths = []
+
+    # Direct paths to any power node
+    for power_node in power_nodes:
+        if graph.has_edge(weak_node, power_node):
+            cost = graph[weak_node][power_node]['weight']
+            all_paths.append({
+                'path': [weak_node, power_node],
+                'cost': cost,
+                'target_power': power_node,
+                'intermediate_nodes': []
+            })
+
+    # Also consider paths through other nodes (but limit depth)
+    if max_hops >= 2:
+        for power_node in power_nodes:
+            try:
+                # Find shortest path
+                path = nx.shortest_path(graph, weak_node, power_node, weight='weight')
+                if len(path) <= max_hops + 1:  # path includes start and end
+                    cost = nx.shortest_path_length(graph, weak_node, power_node, weight='weight')
+
+                    # Check if we already have this as a direct path
+                    if len(path) > 2:  # Only add if it's not a direct path
+                        all_paths.append({
+                            'path': path,
+                            'cost': cost,
+                            'target_power': power_node,
+                            'intermediate_nodes': path[1:-1]  # Nodes between start and end
+                        })
+            except nx.NetworkXNoPath:
+                continue
+
+    # Sort by cost
+    all_paths.sort(key=lambda x: x['cost'])
+
+    # Remove duplicates (keep only the best path to each target)
+    seen_targets = set()
+    unique_paths = []
+    for path_info in all_paths:
+        target = path_info['target_power']
+        if target not in seen_targets:
+            seen_targets.add(target)
+            unique_paths.append(path_info)
+
+    return unique_paths
+
+
+def find_best_solution_dijkstra(graph, weak_nodes, mandatory_nodes, discretionary_nodes,
+                               power_capacities, alpha=0.5):
+    """
+    Find the best solution using Dijkstra-like approach where ALL power nodes are included.
     """
     global main_graph
     main_graph = graph  # Store reference for cost function calculation
 
     print(f"\n{'='*60}")
-    print(f"SIMPLIFIED APPROACH WITH CUSTOM COST FUNCTION (α={alpha})")
+    print(f"DIJKSTRA-LIKE APPROACH (ALL NODES INCLUDED)")
+    print(f"Alpha = {alpha}")
     print(f"{'='*60}")
 
-    all_solutions = []
-
-    # 1. Solution without discretionary nodes
-    print("\n--- Testing solution WITHOUT discretionary nodes ---")
-    print(f"Available nodes: mandatory={mandatory_nodes}, discretionary=[]")
-    solution_no_disc = solve_with_discretionary_subset(
-        graph, weak_nodes, mandatory_nodes, [], power_capacities.copy(),
-        "WITHOUT discretionary", alpha
+    # Single solution with all nodes
+    solution = solve_dijkstra_all_nodes(
+        graph, weak_nodes, mandatory_nodes, discretionary_nodes,
+        power_capacities.copy(), "DIJKSTRA (ALL power nodes)", alpha
     )
-    all_solutions.append(solution_no_disc)
-    print(f"📊 SOLUTION WITHOUT discretionary:")
-    print(f"   Score: {solution_no_disc.score:.2f}")
-    print(f"   Connected: {len(solution_no_disc.connected_weak)}/{len(weak_nodes)}")
-    print(f"   Failed: {len(solution_no_disc.failed_connections)}")
-    print(f"   ACC: {solution_no_disc.acc_cost:.6f}, AOC: {solution_no_disc.aoc_cost:.6f}")
 
-    # 2. Solution with ALL discretionary nodes
-    print(f"\n--- Testing solution WITH ALL discretionary nodes ---")
-    print(f"Available nodes: mandatory={mandatory_nodes}, discretionary={all_discretionary_nodes}")
+    print(f"\n📊 DIJKSTRA SOLUTION:")
+    print(f"   Score: {solution.score:.2f}")
+    print(f"   Connected: {len(solution.connected_weak)}/{len(weak_nodes)}")
+    print(f"   Failed: {len(solution.failed_connections)}")
+    print(f"   ACC: {solution.acc_cost:.6f}, AOC: {solution.aoc_cost:.6f}")
+    print(f"   Total edges: {len(solution.steiner_tree.edges())}")
+    print(f"   Total edge cost: {solution.total_cost}")
 
-    solution_all_disc = solve_with_discretionary_subset(
-        graph, weak_nodes, mandatory_nodes, all_discretionary_nodes, power_capacities.copy(),
-        f"WITH ALL discretionary {all_discretionary_nodes}", alpha
-    )
-    all_solutions.append(solution_all_disc)
-    print(f"📊 SOLUTION WITH ALL discretionary:")
-    print(f"   Score: {solution_all_disc.score:.2f}")
-    print(f"   Connected: {len(solution_all_disc.connected_weak)}/{len(weak_nodes)}")
-    print(f"   Failed: {len(solution_all_disc.failed_connections)}")
-    print(f"   ACC: {solution_all_disc.acc_cost:.6f}, AOC: {solution_all_disc.aoc_cost:.6f}")
-    print(f"   Actually used discretionary: {solution_all_disc.discretionary_used}")
+    # Verify all power nodes are included
+    nodes_in_tree = set()
+    for u, v in solution.steiner_tree.edges():
+        nodes_in_tree.add(u)
+        nodes_in_tree.add(v)
 
-    # 3. Compare and decide
-    print(f"\n{'='*60}")
-    print(f"DETAILED COMPARISON & SELECTION PROCESS")
-    print(f"{'='*60}")
+    all_power_nodes = set(mandatory_nodes + discretionary_nodes)
+    included_power = nodes_in_tree & all_power_nodes
 
-    # Sort solutions by score for detailed comparison
-    all_solutions.sort(key=lambda s: s.score)
+    print(f"\n📊 POWER NODES INCLUSION:")
+    print(f"   Required power nodes: {len(all_power_nodes)}")
+    print(f"   Included power nodes: {len(included_power)}")
+    print(f"   Mandatory included: {len(set(mandatory_nodes) & nodes_in_tree)}/{len(mandatory_nodes)}")
+    print(f"   Discretionary included: {len(set(discretionary_nodes) & nodes_in_tree)}/{len(discretionary_nodes)}")
 
-    print(f"📈 RANKING BY SCORE (lower = better):")
-    for i, solution in enumerate(all_solutions):
-        rank_symbol = "🏆" if i == 0 else f"#{i+1}"
-        status = "SELECTED" if i == 0 else "REJECTED"
+    return solution
 
-        print(f"\n{rank_symbol} {status}: {solution.graph_info}")
-        print(f"   Final Score: {solution.score:.2f}")
-        print(f"   ├─ Custom Cost Function: {solution.acc_cost + solution.aoc_cost:.6f}")
-        print(f"   │  ├─ ACC (α={alpha}): {solution.acc_cost:.6f}")
-        print(f"   │  └─ AOC (1-α={1-alpha}): {solution.aoc_cost:.6f}")
-        print(f"   ├─ Connection Success: {len(solution.connected_weak)}/{len(weak_nodes)} nodes")
-        print(f"   ├─ Failed Connections: {len(solution.failed_connections)} (penalty: {len(solution.failed_connections) * 1000})")
-        print(f"   ├─ Edge Cost: {solution.total_cost}")
-        print(f"   ├─ Discretionary Used: {solution.discretionary_used}")
-        print(f"   └─ Capacity Usage: {dict(solution.capacity_usage)}")
 
-        # Show why this solution was rejected (if not the best)
-        if i > 0:
-            best_score = all_solutions[0].score
-            score_difference = solution.score - best_score
-            print(f"   ⚠️  REJECTION REASON: Score {score_difference:.2f} points higher than best solution")
 
-            # Detailed breakdown of score difference
-            best_solution = all_solutions[0]
 
-            # Compare individual components
-            cost_diff = (solution.acc_cost + solution.aoc_cost) - (best_solution.acc_cost + best_solution.aoc_cost)
-            connection_penalty_diff = (len(solution.failed_connections) - len(best_solution.failed_connections)) * 1000
 
-            print(f"   📊 SCORE BREAKDOWN vs BEST:")
-            print(f"      ├─ Cost Function Difference: {cost_diff:.6f} * 1000 = {cost_diff * 1000:.2f}")
-            print(f"      ├─ Connection Penalty Difference: {connection_penalty_diff:.2f}")
 
-            # Check for capacity violations
-            violation_diff = 0
-            for node, usage in solution.capacity_usage.items():
-                max_cap = power_capacities.get(node, float('inf'))
-                if usage > max_cap and max_cap != float('inf'):
-                    best_usage = best_solution.capacity_usage.get(node, 0)
-                    best_violation = max(0, best_usage - max_cap) if max_cap != float('inf') else 0
-                    curr_violation = max(0, usage - max_cap)
-                    violation_diff += (curr_violation - best_violation) * 50  # Updated penalty calculation
 
-            if violation_diff > 0:
-                print(f"      ├─ Capacity Violation Difference: {violation_diff:.2f}")
-            print(f"      └─ Total Difference: {score_difference:.2f}")
 
-    best_solution = all_solutions[0]
 
-    print(f"\n🎯 FINAL SELECTION:")
-    print(f"   Best solution: {best_solution.graph_info}")
-    print(f"   Final score: {best_solution.score:.2f}")
-    print(f"   Why it's best: {('Lowest score' if len(all_solutions) > 1 else 'Only feasible solution')}")
 
-    # Show insight about discretionary usage
-    if len(all_solutions) >= 2:
-        all_disc_solution = [s for s in all_solutions if s.graph_info.startswith("WITH ALL")][0]
-        print(f"\n💡 DISCRETIONARY USAGE INSIGHT:")
-        print(f"   Available discretionary nodes: {all_discretionary_nodes}")
-        print(f"   Actually used by algorithm: {all_disc_solution.discretionary_used}")
-        unused = set(all_discretionary_nodes) - set(all_disc_solution.discretionary_used)
-        if unused:
-            print(f"   Unused discretionary nodes: {sorted(list(unused))}")
-            print(f"   → These nodes didn't improve the solution quality")
-        else:
-            print(f"   → All available discretionary nodes were beneficial")
 
-        # Additional analysis for identical solutions
-        if all_solutions[0].score == all_solutions[1].score:
-            print(f"\n🔍 IDENTICAL SOLUTIONS ANALYSIS:")
-            print(f"   Both solutions found exactly the same result!")
-            print(f"   This means the greedy algorithm with discretionary available")
-            print(f"   still chose the same paths as without discretionary.")
-            print(f"   📊 Possible reasons:")
-            print(f"   - Direct paths have better incremental cost than discretionary paths")
-            print(f"   - Discretionary paths don't improve the overall cost function")
-            print(f"   - The graph topology makes discretionary paths suboptimal")
 
-    return best_solution, all_solutions
+
+
+
+
+
 
 def visualize_best_solution(graph, best_solution, weak_nodes, mandatory_nodes, all_discretionary_nodes, save_name="BEST_SOLUTION"):
     """
@@ -1364,7 +1573,7 @@ if __name__ == "__main__":
         print(f"Node capacities (used for AOC calculation): {power_capacities}")
 
         # Find best solution with custom cost function
-        best_solution, all_solutions = find_best_solution_simplified(
+        best_solution, all_solutions = find_best_solution_dijkstra(
             graph, weak_nodes_list, mandatory_nodes_list, discretionary_nodes_list,
             power_capacities, alpha
         )

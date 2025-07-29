@@ -12,44 +12,44 @@ This formulation favors load distribution over node count minimization
 
 🏆 BEST SOLUTION:
 ----------------------------------------
-Final score: 290.23
-ACC component: 0.047126
-AOC component: 0.533333
-Custom cost function value: 0.580460
+Final score: 828.16
+ACC component: 0.056322
+AOC component: 1.600000
+Custom cost function value: 1.656322
 Discretionary ACTUALLY used: [29]
 Connected weak nodes: 24
 Failed connections: 0
-Total edge cost: 41
+Total edge cost: 49
 Capacity efficiency cost: 1.800
-Solution edges: [(1, 29), (29, 25), (29, 6), (29, 10), (29, 15), (29, 18), (29, 20), (29, 21), (29, 23), (29, 24), (29, 2), (29, 3), (29, 4), (29, 5), (29, 7), (29, 8), (29, 9), (29, 11), (29, 12), (29, 13), (29, 14), (29, 16), (29, 17), (29, 19), (29, 22)]
+Solution edges: [(25, 26), (25, 27), (25, 29), (1, 29), (29, 6), (29, 10), (29, 15), (29, 18), (29, 20), (29, 21), (29, 23), (29, 24), (29, 2), (29, 3), (29, 4), (29, 5), (29, 7), (29, 8), (29, 9), (29, 11), (29, 12), (29, 13), (29, 14), (29, 16), (29, 17), (29, 19), (29, 22)]
 Capacity usage: {25: 24, 26: 0, 27: 0, 28: 0, 29: 24, 30: 0}
 
 DETAILED COMPARISON OF TESTED SOLUTIONS:
 --------------------------------------------------
 
 #1 SELECTED: WITH ALL discretionary [28, 29, 30]
-  Final Score: 290.23
-  Custom Cost (ACC + AOC): 0.580460
-    ├─ ACC (α=0.5): 0.047126
-    └─ AOC (1-α=0.5): 0.533333
+  Final Score: 828.16
+  Custom Cost (ACC + AOC): 1.656322
+    ├─ ACC (α=0.5): 0.056322
+    └─ AOC (1-α=0.5): 1.600000
   Connected: 24/24
   Failed connections: 0
-  Edge cost: 41
+  Edge cost: 49
   Discretionary used: [29]
   Capacity usage: {25: 24, 26: 0, 27: 0, 28: 0, 29: 24, 30: 0}
 
 #2 REJECTED: WITHOUT discretionary
-  Final Score: 1409.20
-  Custom Cost (ACC + AOC): 1.818391
-    ├─ ACC (α=0.5): 0.151724
-    └─ AOC (1-α=0.5): 1.666667
+  Final Score: 1030.46
+  Custom Cost (ACC + AOC): 2.060920
+    ├─ ACC (α=0.5): 0.160920
+    └─ AOC (1-α=0.5): 1.900000
   Connected: 24/24
   Failed connections: 0
-  Edge cost: 132
+  Edge cost: 140
   Discretionary used: []
   Capacity usage: {25: 10, 26: 4, 27: 10}
-  REJECTION REASON: Score 1118.97 points higher than best
+  REJECTION REASON: Score 202.30 points higher than best
   SCORE BREAKDOWN vs BEST:
-    ├─ Cost Function Difference: 1.237931 * 1000 = 1237.93
+    ├─ Cost Function Difference: 0.404598 * 1000 = 404.60
     ├─ Connection Penalty Difference: 0.00
-    └─ Total Difference: 1118.97
+    └─ Total Difference: 202.30
