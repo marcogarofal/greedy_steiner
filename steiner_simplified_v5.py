@@ -336,15 +336,10 @@ class Solution:
 
 
 
-
-
-
-
-
     def calculate_score(self):
         """
         Calculate a score to compare solutions using the custom cost function
-        FIXED: Remove double penalty for capacity violations since AOC already handles overload
+        FIXED: Correctly apply alpha weighting
         """
         # Get all nodes that are part of the solution
         selected_nodes = set()
@@ -363,30 +358,21 @@ class Solution:
             )
             self.acc_cost = acc
             self.aoc_cost = aoc
+            # FIX: Store the correctly weighted cost
+            self.weighted_cost = cost_func_value  # This is alpha * acc + (1-alpha) * aoc
         except:
             # Fallback to simple calculation if main_graph not available
             cost_func_value = self.total_cost / 1000  # Normalize edge cost
             self.acc_cost = cost_func_value
             self.aoc_cost = 0
+            self.weighted_cost = cost_func_value
 
         # Add penalties for constraints violations
-
         # 1. Penalty for unconnected nodes (very high penalty - this is critical)
         connection_penalty = len(self.failed_connections) * 1000
 
         # 2. REMOVED capacity violation penalty - AOC already handles this!
-        # The custom cost function's AOC component already penalizes overload
-        # Adding extra penalties would be double-counting
         violation_penalty = 0
-
-        # Alternative: Only penalize EXTREME overload cases (optional)
-        # extreme_overload_penalty = 0
-        # for node, usage in self.capacity_usage.items():
-        #     max_cap = power_capacities.get(node, float('inf'))
-        #     if usage > max_cap * 2 and max_cap != float('inf'):  # Only if usage is MORE than double capacity
-        #         extreme_overload = usage - (max_cap * 2)
-        #         extreme_overload_penalty += extreme_overload * 10
-        # violation_penalty = extreme_overload_penalty
 
         # 3. Connectivity constraint penalty (ensure the graph is connected)
         connectivity_penalty = 0
@@ -401,12 +387,12 @@ class Solution:
 
         # DEBUG: Print score calculation details
         print(f"    🔍 DEBUG SCORE for {self.graph_info}:")
-        print(f"        - Custom Cost Function: {cost_func_value:.6f}")
-        print(f"          * ACC (α={self.alpha}): {self.acc_cost:.6f}")
-        print(f"          * AOC (1-α={1-self.alpha}): {self.aoc_cost:.6f}")
+        print(f"        - Custom Cost Function (weighted): {cost_func_value:.6f}")
+        print(f"          * ACC × α ({self.alpha}): {self.acc_cost * self.alpha:.6f}")
+        print(f"          * AOC × (1-α) ({1-self.alpha}): {self.aoc_cost * (1-self.alpha):.6f}")
+        print(f"          * TOTAL: {cost_func_value:.6f}")
         print(f"        - Cost function × 1000: {cost_func_value * 1000:.2f}")
         print(f"        - Failed nodes: {len(self.failed_connections)} → Connection penalty: {connection_penalty}")
-        print(f"        - Capacity violation penalty: {violation_penalty} (REMOVED - handled by AOC)")
         print(f"        - Connectivity penalty: {connectivity_penalty}")
         print(f"        - TOTAL SCORE: {total_score:.2f}")
 
@@ -426,35 +412,29 @@ class Solution:
         return total_score
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     def __str__(self):
+        """String representation with corrected cost display"""
+        weighted_cost = getattr(self, 'weighted_cost', self.alpha * self.acc_cost + (1 - self.alpha) * self.aoc_cost)
         return (f"Solution {self.graph_info}:\n"
                 f"  - Connected nodes: {len(self.connected_weak)} (failed: {len(self.failed_connections)})\n"
-                f"  - Custom Cost Function: {self.acc_cost:.6f} + {self.aoc_cost:.6f} = {(self.acc_cost + self.aoc_cost):.6f}\n"
+                f"  - Custom Cost Function (weighted): {weighted_cost:.6f}\n"
+                f"    * ACC × α ({self.alpha}): {self.acc_cost * self.alpha:.6f}\n"
+                f"    * AOC × (1-α) ({1-self.alpha}): {self.aoc_cost * (1-self.alpha):.6f}\n"
                 f"  - Edge cost: {self.total_cost}\n"
                 f"  - Capacity cost: {self.capacity_cost:.3f}\n"
                 f"  - Discretionary ACTUALLY used: {self.discretionary_used}\n"
                 f"  - Score: {self.score:.2f}")
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -842,11 +822,16 @@ def find_best_solution_simplified(graph, weak_nodes, mandatory_nodes, all_discre
         "WITHOUT discretionary", alpha
     )
     all_solutions.append(solution_no_disc)
+    
+    # FIXED: Show weighted cost correctly
+    weighted_cost_no_disc = solution_no_disc.alpha * solution_no_disc.acc_cost + (1 - solution_no_disc.alpha) * solution_no_disc.aoc_cost
     print(f"📊 SOLUTION WITHOUT discretionary:")
     print(f"   Score: {solution_no_disc.score:.2f}")
     print(f"   Connected: {len(solution_no_disc.connected_weak)}/{len(weak_nodes)}")
     print(f"   Failed: {len(solution_no_disc.failed_connections)}")
-    print(f"   ACC: {solution_no_disc.acc_cost:.6f}, AOC: {solution_no_disc.aoc_cost:.6f}")
+    print(f"   Custom Cost (weighted): {weighted_cost_no_disc:.6f}")
+    print(f"     ACC × α ({solution_no_disc.alpha}): {solution_no_disc.acc_cost * solution_no_disc.alpha:.6f}")
+    print(f"     AOC × (1-α) ({1-solution_no_disc.alpha}): {solution_no_disc.aoc_cost * (1-solution_no_disc.alpha):.6f}")
 
     # 2. Solution with ALL discretionary nodes
     print(f"\n--- Testing solution WITH ALL discretionary nodes ---")
@@ -857,11 +842,16 @@ def find_best_solution_simplified(graph, weak_nodes, mandatory_nodes, all_discre
         f"WITH ALL discretionary {all_discretionary_nodes}", alpha
     )
     all_solutions.append(solution_all_disc)
+    
+    # FIXED: Show weighted cost correctly
+    weighted_cost_all_disc = solution_all_disc.alpha * solution_all_disc.acc_cost + (1 - solution_all_disc.alpha) * solution_all_disc.aoc_cost
     print(f"📊 SOLUTION WITH ALL discretionary:")
     print(f"   Score: {solution_all_disc.score:.2f}")
     print(f"   Connected: {len(solution_all_disc.connected_weak)}/{len(weak_nodes)}")
     print(f"   Failed: {len(solution_all_disc.failed_connections)}")
-    print(f"   ACC: {solution_all_disc.acc_cost:.6f}, AOC: {solution_all_disc.aoc_cost:.6f}")
+    print(f"   Custom Cost (weighted): {weighted_cost_all_disc:.6f}")
+    print(f"     ACC × α ({solution_all_disc.alpha}): {solution_all_disc.acc_cost * solution_all_disc.alpha:.6f}")
+    print(f"     AOC × (1-α) ({1-solution_all_disc.alpha}): {solution_all_disc.aoc_cost * (1-solution_all_disc.alpha):.6f}")
     print(f"   Actually used discretionary: {solution_all_disc.discretionary_used}")
 
     # 3. Compare and decide
@@ -876,12 +866,17 @@ def find_best_solution_simplified(graph, weak_nodes, mandatory_nodes, all_discre
     for i, solution in enumerate(all_solutions):
         rank_symbol = "🏆" if i == 0 else f"#{i+1}"
         status = "SELECTED" if i == 0 else "REJECTED"
+        
+        # FIXED: Calculate weighted cost correctly
+        weighted_cost = solution.alpha * solution.acc_cost + (1 - solution.alpha) * solution.aoc_cost
 
         print(f"\n{rank_symbol} {status}: {solution.graph_info}")
         print(f"   Final Score: {solution.score:.2f}")
-        print(f"   ├─ Custom Cost Function: {solution.acc_cost + solution.aoc_cost:.6f}")
-        print(f"   │  ├─ ACC (α={alpha}): {solution.acc_cost:.6f}")
-        print(f"   │  └─ AOC (1-α={1-alpha}): {solution.aoc_cost:.6f}")
+        print(f"   ├─ Custom Cost Function (weighted): {weighted_cost:.6f}")
+        print(f"   │  ├─ ACC component: {solution.acc_cost:.6f}")
+        print(f"   │  ├─ AOC component: {solution.aoc_cost:.6f}")
+        print(f"   │  ├─ ACC × α ({solution.alpha}): {solution.acc_cost * solution.alpha:.6f}")
+        print(f"   │  └─ AOC × (1-α) ({1-solution.alpha}): {solution.aoc_cost * (1-solution.alpha):.6f}")
         print(f"   ├─ Connection Success: {len(solution.connected_weak)}/{len(weak_nodes)} nodes")
         print(f"   ├─ Failed Connections: {len(solution.failed_connections)} (penalty: {len(solution.failed_connections) * 1000})")
         print(f"   ├─ Edge Cost: {solution.total_cost}")
@@ -897,8 +892,11 @@ def find_best_solution_simplified(graph, weak_nodes, mandatory_nodes, all_discre
             # Detailed breakdown of score difference
             best_solution = all_solutions[0]
 
-            # Compare individual components
-            cost_diff = (solution.acc_cost + solution.aoc_cost) - (best_solution.acc_cost + best_solution.aoc_cost)
+            # FIXED: Compare weighted costs
+            weighted_cost_current = solution.alpha * solution.acc_cost + (1 - solution.alpha) * solution.aoc_cost
+            weighted_cost_best = best_solution.alpha * best_solution.acc_cost + (1 - best_solution.alpha) * best_solution.aoc_cost
+            cost_diff = weighted_cost_current - weighted_cost_best
+            
             connection_penalty_diff = (len(solution.failed_connections) - len(best_solution.failed_connections)) * 1000
 
             print(f"   📊 SCORE BREAKDOWN vs BEST:")
@@ -951,6 +949,14 @@ def find_best_solution_simplified(graph, weak_nodes, mandatory_nodes, all_discre
             print(f"   - The graph topology makes discretionary paths suboptimal")
 
     return best_solution, all_solutions
+
+
+
+
+
+
+
+
 
 def visualize_best_solution(graph, best_solution, weak_nodes, mandatory_nodes, all_discretionary_nodes, save_name="BEST_SOLUTION"):
     """
@@ -1093,6 +1099,8 @@ def visualize_best_solution(graph, best_solution, weak_nodes, mandatory_nodes, a
     plot_counter += 1
     print(f"🏆 BEST SOLUTION saved with custom cost function")
 
+
+
 def save_solution_summary(best_solution, all_solutions, save_name="solution_summary"):
     """
     Save a text summary of solutions with detailed comparison
@@ -1112,10 +1120,16 @@ def save_solution_summary(best_solution, all_solutions, save_name="solution_summ
 
         f.write("🏆 BEST SOLUTION:\n")
         f.write("-"*40 + "\n")
+        
+        # FIXED: Calculate and show weighted cost correctly
+        weighted_cost = best_solution.alpha * best_solution.acc_cost + (1 - best_solution.alpha) * best_solution.aoc_cost
+        
         f.write(f"Final score: {best_solution.score:.2f}\n")
         f.write(f"ACC component: {best_solution.acc_cost:.6f}\n")
         f.write(f"AOC component: {best_solution.aoc_cost:.6f}\n")
-        f.write(f"Custom cost function value: {best_solution.acc_cost + best_solution.aoc_cost:.6f}\n")
+        f.write(f"ACC × α ({best_solution.alpha}): {best_solution.acc_cost * best_solution.alpha:.6f}\n")
+        f.write(f"AOC × (1-α) ({1-best_solution.alpha}): {best_solution.aoc_cost * (1-best_solution.alpha):.6f}\n")
+        f.write(f"Custom cost function value (weighted): {weighted_cost:.6f}\n")
         f.write(f"Discretionary ACTUALLY used: {best_solution.discretionary_used}\n")
         f.write(f"Connected weak nodes: {len(best_solution.connected_weak)}\n")
         f.write(f"Failed connections: {len(best_solution.failed_connections)}\n")
@@ -1132,11 +1146,17 @@ def save_solution_summary(best_solution, all_solutions, save_name="solution_summ
 
         for i, solution in enumerate(sorted_solutions):
             status = "SELECTED" if i == 0 else "REJECTED"
+            
+            # FIXED: Calculate weighted cost for each solution
+            weighted_cost = solution.alpha * solution.acc_cost + (1 - solution.alpha) * solution.aoc_cost
+            
             f.write(f"\n#{i+1} {status}: {solution.graph_info}\n")
             f.write(f"  Final Score: {solution.score:.2f}\n")
-            f.write(f"  Custom Cost (ACC + AOC): {solution.acc_cost + solution.aoc_cost:.6f}\n")
-            f.write(f"    ├─ ACC (α={solution.alpha}): {solution.acc_cost:.6f}\n")
-            f.write(f"    └─ AOC (1-α={1-solution.alpha}): {solution.aoc_cost:.6f}\n")
+            f.write(f"  Custom Cost (weighted): {weighted_cost:.6f}\n")
+            f.write(f"    ├─ ACC component: {solution.acc_cost:.6f}\n")
+            f.write(f"    ├─ AOC component: {solution.aoc_cost:.6f}\n")
+            f.write(f"    ├─ ACC × α ({solution.alpha}): {solution.acc_cost * solution.alpha:.6f}\n")
+            f.write(f"    └─ AOC × (1-α) ({1-solution.alpha}): {solution.aoc_cost * (1-solution.alpha):.6f}\n")
             f.write(f"  Connected: {len(solution.connected_weak)}/{len(solution.connected_weak) + len(solution.failed_connections)}\n")
             f.write(f"  Failed connections: {len(solution.failed_connections)}\n")
             f.write(f"  Edge cost: {solution.total_cost}\n")
@@ -1151,7 +1171,12 @@ def save_solution_summary(best_solution, all_solutions, save_name="solution_summ
 
                 # Detailed score breakdown
                 best_solution_ref = sorted_solutions[0]
-                cost_diff = (solution.acc_cost + solution.aoc_cost) - (best_solution_ref.acc_cost + best_solution_ref.aoc_cost)
+                
+                # FIXED: Use weighted costs for comparison
+                weighted_cost_current = solution.alpha * solution.acc_cost + (1 - solution.alpha) * solution.aoc_cost
+                weighted_cost_best = best_solution_ref.alpha * best_solution_ref.acc_cost + (1 - best_solution_ref.alpha) * best_solution_ref.aoc_cost
+                cost_diff = weighted_cost_current - weighted_cost_best
+                
                 connection_penalty_diff = (len(solution.failed_connections) - len(best_solution_ref.failed_connections)) * 1000
 
                 f.write(f"  SCORE BREAKDOWN vs BEST:\n")
@@ -1160,6 +1185,9 @@ def save_solution_summary(best_solution, all_solutions, save_name="solution_summ
                 f.write(f"    └─ Total Difference: {score_difference:.2f}\n")
 
     print(f"📋 Detailed summary saved with rejection reasons")
+
+
+
 
 def save_graph_for_analysis(graph, graph_index, save_name=None):
     """
@@ -1260,6 +1288,9 @@ plot_counter = 0
 power_capacities = {}
 main_graph = None
 
+
+
+
 if __name__ == "__main__":
     # Choose execution mode
     print("🚀 Algorithm Execution Options:")
@@ -1279,7 +1310,7 @@ if __name__ == "__main__":
         print("⚠️ Invalid alpha value, using default 0.5")
         alpha = 0.5
 
-    print(f"📊 Using Alpha = {alpha} ({'Only ACC (communication cost)' if alpha == 0.0 else 'Only AOC (operational cost)' if alpha == 1.0 else f'Balanced: {alpha*100:.0f}% ACC, {(1-alpha)*100:.0f}% AOC'})")
+    print(f"📊 Using Alpha = {alpha} ({'Only ACC (communication cost)' if alpha == 1.0 else 'Only AOC (operational cost)' if alpha == 0.0 else f'Balanced: {alpha*100:.0f}% ACC, {(1-alpha)*100:.0f}% AOC'})")
 
     if execution_mode == "1":
         # Single configuration mode (original behavior)
@@ -1325,9 +1356,7 @@ if __name__ == "__main__":
         print(f"Mandatory nodes: {mandatory_nodes_list}")
         print(f"Discretionary nodes: {discretionary_nodes_list}")
 
-        # Node capacities - customize these based on your graph
-        #power_capacities = {1: 1, 2: 1, 3: 1, 4: 3, 5: 3, 6: 5, 7: 0}
-
+        '''
         # Extended power capacities from 1 to 30
         power_capacities = {
             # Original values (1-7)
@@ -1364,6 +1393,57 @@ if __name__ == "__main__":
             29: 40,   # Discretionary node
             30: 60    # Discretionary node
         }
+        '''
+
+
+
+
+
+        # SCENARIO 1: Capacità molto basse per forzare overload (AOC alto)
+        power_capacities = {
+            # Nodi 1-7
+            1: 1,    # Capacità minima
+            2: 1,
+            3: 1,
+            4: 1,    # Ridotto da 3 a 1
+            5: 1,    # Ridotto da 3 a 1
+            6: 2,    # Ridotto da 5 a 2
+            7: 0,    # Zero capacità
+            
+            # Nodi 8-24
+            8: 1,
+            9: 1,
+            10: 1,   # Ridotto da 4 a 1
+            11: 1,   # Ridotto da 3 a 1
+            12: 1,
+            13: 1,   # Ridotto da 5 a 1
+            14: 1,
+            15: 1,   # Ridotto da 4 a 1
+            16: 2,   # Ridotto da 6 a 2
+            17: 1,
+            18: 1,
+            19: 1,   # Ridotto da 5 a 1
+            20: 1,   # Ridotto da 4 a 1
+            21: 1,
+            22: 2,   # Ridotto da 6 a 2
+            23: 1,
+            24: 1,   # Ridotto da 5 a 1
+            
+            # Nodi mandatory - capacità molto basse per forzare overload
+            25: 2,   # Ridotto da 8 a 2 (mandatory)
+            26: 2,   # Ridotto da 6 a 2 (mandatory)
+            27: 2,   # Ridotto da 7 a 2 (mandatory)
+            
+            # Nodi discretionary - anche loro con capacità basse
+            28: 3,   # Ridotto da 50 a 3 (discretionary)
+            29: 3,   # Ridotto da 40 a 3 (discretionary)
+            30: 4    # Ridotto da 60 a 4 (discretionary)
+        }
+
+
+
+
+
 
 
         print(f"Node capacities (used for AOC calculation): {power_capacities}")
@@ -1423,9 +1503,13 @@ if __name__ == "__main__":
 
         print(f"\n🏆 GRAPH {graph_index} COMPLETED (CUSTOM COST FUNCTION)")
         print(f"BEST SOLUTION:")
+        
+        # FIXED: Show weighted cost correctly in final output
+        weighted_cost = best_solution.alpha * best_solution.acc_cost + (1 - best_solution.alpha) * best_solution.aoc_cost
         print(f"  - Score: {best_solution.score:.2f}")
-        print(f"  - ACC: {best_solution.acc_cost:.6f}")
-        print(f"  - AOC: {best_solution.aoc_cost:.6f}")
+        print(f"  - Weighted Cost: {weighted_cost:.6f}")
+        print(f"    * ACC × α ({best_solution.alpha}): {best_solution.acc_cost * best_solution.alpha:.6f}")
+        print(f"    * AOC × (1-α) ({1-best_solution.alpha}): {best_solution.aoc_cost * (1-best_solution.alpha):.6f}")
         print(f"  - Discretionary used: {best_solution.discretionary_used}")
         print(f"  - Connected: {len(best_solution.connected_weak)}/{len(weak_nodes_list)}")
 

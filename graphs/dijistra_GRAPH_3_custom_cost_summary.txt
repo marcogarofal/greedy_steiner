@@ -1,0 +1,39 @@
+================================================================================
+SOLUTION SUMMARY WITH CUSTOM COST FUNCTION
+================================================================================
+
+COST FUNCTION: C(G) = α * ACC + (1-α) * AOC
+α = 0.5
+ACC = (Σ w_ij * x_ij) / (n(n-1)) - Average Communication Cost
+AOC = (Σ overload_j * d_j * y_j) / n - Average Operational Cost (OVERLOAD ONLY)
+Where overload_j = max(0, usage_j - capacity_j) - only overload contributes to cost
+      d_j = node degree, y_j = node selected
+This formulation favors load distribution over node count minimization
+
+🏆 BEST SOLUTION:
+----------------------------------------
+Final score: 3522.99
+ACC component: 0.045977
+AOC component: 7.000000
+Custom cost function value: 7.045977
+Discretionary ACTUALLY used: [28, 29, 30]
+Connected weak nodes: 24
+Failed connections: 0
+Total edge cost: 40
+Capacity efficiency cost: 2.611
+Solution edges: [(25, 29), (25, 26), (29, 2), (29, 4), (29, 5), (29, 6), (29, 7), (29, 12), (29, 13), (29, 24), (26, 28), (26, 30), (26, 27), (28, 1), (28, 3), (28, 9), (28, 10), (28, 11), (28, 15), (28, 16), (28, 18), (28, 20), (28, 21), (28, 14), (28, 17), (28, 19), (28, 23), (30, 8), (30, 22)]
+Capacity usage: {25: 0, 26: 0, 27: 0, 28: 14, 29: 8, 30: 2}
+
+DETAILED COMPARISON OF TESTED SOLUTIONS:
+--------------------------------------------------
+
+#1 SELECTED: DIJKSTRA (ALL power nodes)
+  Final Score: 3522.99
+  Custom Cost (ACC + AOC): 7.045977
+    ├─ ACC (α=0.5): 0.045977
+    └─ AOC (1-α=0.5): 7.000000
+  Connected: 24/24
+  Failed connections: 0
+  Edge cost: 40
+  Discretionary used: [28, 29, 30]
+  Capacity usage: {25: 0, 26: 0, 27: 0, 28: 14, 29: 8, 30: 2}

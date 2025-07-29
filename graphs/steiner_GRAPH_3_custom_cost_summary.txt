@@ -12,44 +12,50 @@ This formulation favors load distribution over node count minimization
 
 🏆 BEST SOLUTION:
 ----------------------------------------
-Final score: 828.16
-ACC component: 0.056322
-AOC component: 1.600000
-Custom cost function value: 1.656322
-Discretionary ACTUALLY used: [29]
+Final score: 3263.22
+ACC component: 0.159770
+AOC component: 6.366667
+ACC × α (0.5): 0.079885
+AOC × (1-α) (0.5): 3.183333
+Custom cost function value (weighted): 3.263218
+Discretionary ACTUALLY used: []
 Connected weak nodes: 24
 Failed connections: 0
-Total edge cost: 49
-Capacity efficiency cost: 1.800
-Solution edges: [(25, 26), (25, 27), (25, 29), (1, 29), (29, 6), (29, 10), (29, 15), (29, 18), (29, 20), (29, 21), (29, 23), (29, 24), (29, 2), (29, 3), (29, 4), (29, 5), (29, 7), (29, 8), (29, 9), (29, 11), (29, 12), (29, 13), (29, 14), (29, 16), (29, 17), (29, 19), (29, 22)]
-Capacity usage: {25: 24, 26: 0, 27: 0, 28: 0, 29: 24, 30: 0}
+Total edge cost: 139
+Capacity efficiency cost: 4.000
+Solution edges: [(25, 26), (25, 2), (25, 7), (25, 11), (25, 13), (25, 19), (25, 21), (25, 3), (25, 10), (25, 16), (25, 17), (25, 20), (25, 24), (26, 27), (26, 18), (26, 4), (26, 6), (26, 8), (26, 9), (27, 1), (27, 5), (27, 12), (27, 14), (27, 15), (27, 23), (27, 22)]
+Capacity usage: {25: 12, 26: 5, 27: 7}
 
 DETAILED COMPARISON OF TESTED SOLUTIONS:
 --------------------------------------------------
 
-#1 SELECTED: WITH ALL discretionary [28, 29, 30]
-  Final Score: 828.16
-  Custom Cost (ACC + AOC): 1.656322
-    ├─ ACC (α=0.5): 0.056322
-    └─ AOC (1-α=0.5): 1.600000
+#1 SELECTED: WITHOUT discretionary
+  Final Score: 3263.22
+  Custom Cost (weighted): 3.263218
+    ├─ ACC component: 0.159770
+    ├─ AOC component: 6.366667
+    ├─ ACC × α (0.5): 0.079885
+    └─ AOC × (1-α) (0.5): 3.183333
   Connected: 24/24
   Failed connections: 0
-  Edge cost: 49
-  Discretionary used: [29]
-  Capacity usage: {25: 24, 26: 0, 27: 0, 28: 0, 29: 24, 30: 0}
-
-#2 REJECTED: WITHOUT discretionary
-  Final Score: 1030.46
-  Custom Cost (ACC + AOC): 2.060920
-    ├─ ACC (α=0.5): 0.160920
-    └─ AOC (1-α=0.5): 1.900000
-  Connected: 24/24
-  Failed connections: 0
-  Edge cost: 140
+  Edge cost: 139
   Discretionary used: []
-  Capacity usage: {25: 10, 26: 4, 27: 10}
-  REJECTION REASON: Score 202.30 points higher than best
+  Capacity usage: {25: 12, 26: 5, 27: 7}
+
+#2 REJECTED: WITH ALL discretionary [28, 29, 30]
+  Final Score: 4656.32
+  Custom Cost (weighted): 4.656322
+    ├─ ACC component: 0.045977
+    ├─ AOC component: 9.266667
+    ├─ ACC × α (0.5): 0.022989
+    └─ AOC × (1-α) (0.5): 4.633333
+  Connected: 24/24
+  Failed connections: 0
+  Edge cost: 40
+  Discretionary used: [28, 29, 30]
+  Capacity usage: {25: 8, 26: 16, 27: 0, 28: 14, 29: 8, 30: 2}
+  REJECTION REASON: Score 1393.10 points higher than best
   SCORE BREAKDOWN vs BEST:
-    ├─ Cost Function Difference: 0.404598 * 1000 = 404.60
+    ├─ Cost Function Difference: 1.393103 * 1000 = 1393.10
     ├─ Connection Penalty Difference: 0.00
-    └─ Total Difference: 202.30
+    └─ Total Difference: 1393.10

@@ -8,6 +8,7 @@ from datetime import datetime
 class SolutionCostComparator:
     """
     Confronta i costi e le metriche tra due soluzioni salvate in file pickle
+    VERSIONE CORRETTA per gestire sia Dijkstra che Steiner con stesso formato
     """
 
     def __init__(self):
@@ -15,7 +16,7 @@ class SolutionCostComparator:
 
     def load_solution(self, filepath, name):
         """
-        Carica una soluzione da file pickle
+        Carica una soluzione da file pickle - VERSIONE CORRETTA
         """
         try:
             with open(filepath, 'rb') as f:
@@ -28,41 +29,52 @@ class SolutionCostComparator:
                 'data': data
             }
 
-            # Determina il formato e estrai metriche standardizzate
-            if 'solution_tree' in data:  # Formato Dijkstra
-                solution_info['format'] = 'dijkstra'
-                solution_info['tree'] = data['solution_tree']
-                solution_info['algorithm'] = data.get('algorithm', 'dijkstra')
-                solution_info['alpha'] = data.get('alpha', 0.5)
-                solution_info['score'] = data.get('score', float('inf'))
-                solution_info['acc_cost'] = data.get('acc_cost', 0)
-                solution_info['aoc_cost'] = data.get('aoc_cost', 0)
-                solution_info['total_cost'] = data.get('total_cost', 0)
-                solution_info['connected_weak'] = data.get('connected_weak', [])
-                solution_info['discretionary_used'] = data.get('discretionary_used', [])
-                solution_info['capacity_usage'] = data.get('capacity_usage', {})
-                solution_info['solution_edges'] = data.get('solution_edges', [])
+            # NUOVO: Determina il tipo di algoritmo dal nome del file o dai metadati
+            filename_lower = os.path.basename(filepath).lower()
+            
+            # Determina l'algoritmo
+            if 'dijkstra' in filename_lower or 'dijistra' in filename_lower:
+                solution_info['algorithm'] = 'dijkstra'
+            elif 'steiner' in filename_lower:
+                solution_info['algorithm'] = 'steiner'
+            else:
+                # Prova a determinarlo dai metadati
+                metadata = data.get('solution_metadata', {})
+                solution_info['algorithm'] = metadata.get('algorithm', 'unknown')
 
-            elif 'steiner_tree' in data:  # Formato Steiner
+            # Estrai l'albero (campo diverso per ogni algoritmo)
+            if 'steiner_tree' in data:
                 solution_info['format'] = 'steiner'
                 solution_info['tree'] = data['steiner_tree']
-
-                # Estrai da solution_metadata se presente
-                metadata = data.get('solution_metadata', {})
-                solution_info['algorithm'] = 'steiner'
-                solution_info['alpha'] = metadata.get('alpha', 0.5)
-                solution_info['score'] = metadata.get('final_score', float('inf'))
-                solution_info['acc_cost'] = metadata.get('acc_cost', 0)
-                solution_info['aoc_cost'] = metadata.get('aoc_cost', 0)
-                solution_info['total_cost'] = metadata.get('total_edge_cost', 0)
-                solution_info['connected_weak'] = data.get('connected_weak_nodes', [])
-                solution_info['discretionary_used'] = data.get('discretionary_used', [])
-                solution_info['capacity_usage'] = data.get('capacity_usage', {})
-                solution_info['solution_edges'] = data.get('solution_edges', [])
-
+            elif 'dijistra_tree' in data:
+                solution_info['format'] = 'dijkstra'
+                solution_info['tree'] = data['dijistra_tree']
+                solution_info['algorithm'] = 'dijkstra'  # Forza algoritmo dijkstra
+            elif 'dijkstra_tree' in data:
+                solution_info['format'] = 'dijkstra'
+                solution_info['tree'] = data['dijkstra_tree']
+                solution_info['algorithm'] = 'dijkstra'
+            elif 'solution_tree' in data:
+                solution_info['format'] = 'generic'
+                solution_info['tree'] = data['solution_tree']
             else:
-                print(f"⚠️ Formato non riconosciuto per {name}")
+                print(f"⚠️ Nessun albero trovato in {name}")
+                print(f"   Chiavi disponibili: {list(data.keys())}")
                 return False
+
+            # Estrai metriche dai metadati (stessa struttura per entrambi)
+            metadata = data.get('solution_metadata', {})
+            solution_info['alpha'] = metadata.get('alpha', 0.5)
+            solution_info['score'] = metadata.get('final_score', float('inf'))
+            solution_info['acc_cost'] = metadata.get('acc_cost', 0)
+            solution_info['aoc_cost'] = metadata.get('aoc_cost', 0)
+            solution_info['total_cost'] = metadata.get('total_edge_cost', 0)
+            
+            # Altri dati
+            solution_info['connected_weak'] = data.get('connected_weak_nodes', [])
+            solution_info['discretionary_used'] = data.get('discretionary_used', [])
+            solution_info['capacity_usage'] = data.get('capacity_usage', {})
+            solution_info['solution_edges'] = data.get('solution_edges', [])
 
             # Calcola metriche aggiuntive
             if solution_info['tree']:
@@ -81,11 +93,14 @@ class SolutionCostComparator:
             print(f"   Format: {solution_info['format']}")
             print(f"   Algorithm: {solution_info['algorithm']}")
             print(f"   Alpha: {solution_info['alpha']}")
+            print(f"   Score: {solution_info['score']:.2f}")
 
             return True
 
         except Exception as e:
             print(f"❌ Errore nel caricamento di {filepath}: {e}")
+            import traceback
+            traceback.print_exc()
             return False
 
     def compare_costs(self):
@@ -506,7 +521,7 @@ if __name__ == "__main__":
     print("🔍 CONFRONTO COSTI TRA SOLUZIONI")
     print("="*50)
 
-    file1 = "graphs/dijkstra_solution_graph_3_alpha_0.5_20250728_202318.pickle"
+    file1 = "graphs/dijistra_GRAPH_3_CUSTOM_COST_solution.pickle"
     if not file1:
         print("❌ File 1 non specificato")
         exit()
