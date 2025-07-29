@@ -212,9 +212,17 @@ class SolutionCostComparator:
 
         return df
 
+   
+
+
+
+
+
+
     def visualize_cost_comparison(self):
         """
         Crea grafici di confronto dei costi con legende chiare
+        MODIFICATO: Rimosso Costo Archi, mantenuto solo ACC
         """
         if len(self.solutions) < 2:
             print("❌ Servono almeno 2 soluzioni per la visualizzazione")
@@ -226,7 +234,6 @@ class SolutionCostComparator:
         scores = [self.solutions[name]['score'] for name in names]
         acc_costs = [self.solutions[name]['acc_cost'] for name in names]
         aoc_costs = [self.solutions[name]['aoc_cost'] for name in names]
-        edge_costs = [self.solutions[name]['total_cost'] for name in names]
 
         # Colori distintivi per algoritmo
         algo_colors = {
@@ -266,14 +273,14 @@ class SolutionCostComparator:
         width = 0.35
 
         bars2_acc = ax2.bar([p - width/2 for p in x_pos], acc_costs, width,
-                           label='ACC (Communication)', color='#4ECDC4', alpha=0.8,
-                           edgecolor='black', linewidth=1.5)
+                        label='ACC (Communication)', color='#4ECDC4', alpha=0.8,
+                        edgecolor='black', linewidth=1.5)
         bars2_aoc = ax2.bar([p + width/2 for p in x_pos], aoc_costs, width,
-                           label='AOC (Operational)', color='#F38375', alpha=0.8,
-                           edgecolor='black', linewidth=1.5)
+                        label='AOC (Operational)', color='#F38375', alpha=0.8,
+                        edgecolor='black', linewidth=1.5)
 
         ax2.set_title('Componenti della Cost Function C(G) = α·ACC + (1-α)·AOC', fontsize=14, weight='bold')
-        ax2.set_ylabel('Valore del Costo', fontsize=12)
+        ax2.set_ylabel('Valore del Costo Normalizzato', fontsize=12)
         ax2.set_xticks(x_pos)
         ax2.set_xticklabels(names)
         ax2.grid(True, alpha=0.3, axis='y')
@@ -297,34 +304,44 @@ class SolutionCostComparator:
                 fontsize=10, ha='right', va='bottom',
                 bbox=dict(boxstyle="round,pad=0.3", facecolor='lightgray', alpha=0.7))
 
-        # 3. Costo totale archi
-        bars3 = ax3.bar(names, edge_costs, color=bar_colors, alpha=0.8,
-                       edgecolor='black', linewidth=2)
-        ax3.set_title('Costo Totale degli Archi (Somma Pesi)', fontsize=14, weight='bold')
-        ax3.set_ylabel('Peso Totale', fontsize=12)
+        # 3. Confronto Cost Function Totale (invece di Costo Archi)
+        # Calcola il costo totale della funzione obiettivo per ogni soluzione
+        total_cost_function = []
+        for name in names:
+            sol = self.solutions[name]
+            alpha = sol['alpha']
+            total_cf = alpha * sol['acc_cost'] + (1 - alpha) * sol['aoc_cost']
+            total_cost_function.append(total_cf)
+        
+        bars3 = ax3.bar(names, total_cost_function, color=bar_colors, alpha=0.8,
+                    edgecolor='black', linewidth=2)
+        ax3.set_title('Cost Function Totale: α·ACC + (1-α)·AOC', fontsize=14, weight='bold')
+        ax3.set_ylabel('Valore Cost Function', fontsize=12)
         ax3.grid(True, alpha=0.3, axis='y')
 
-        for bar, cost in zip(bars3, edge_costs):
+        for bar, cost in zip(bars3, total_cost_function):
             height = bar.get_height()
-            ax3.text(bar.get_x() + bar.get_width()/2., height + max(edge_costs)*0.01,
-                    f'{cost}', ha='center', va='bottom', fontsize=11, weight='bold',
+            ax3.text(bar.get_x() + bar.get_width()/2., height + max(total_cost_function)*0.01,
+                    f'{cost:.6f}', ha='center', va='bottom', fontsize=11, weight='bold',
                     bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.8))
 
-        # Info su numero di archi
-        num_edges = [self.solutions[name].get('num_edges', 'N/A') for name in names]
-        for i, (name, n_edges) in enumerate(zip(names, num_edges)):
-            ax3.text(i, -max(edge_costs)*0.05, f'{n_edges} archi',
+        # Info aggiuntive sotto le barre
+        for i, name in enumerate(names):
+            sol = self.solutions[name]
+            info_text = f"α={sol['alpha']}"
+            ax3.text(i, -max(total_cost_function)*0.08, info_text,
                     ha='center', va='top', fontsize=10, style='italic')
 
+        # 4. Confronto percentuale (se ci sono 2 soluzioni)
         # 4. Confronto percentuale (se ci sono 2 soluzioni)
         if len(self.solutions) == 2:
             sol1 = self.solutions[names[0]]
             sol2 = self.solutions[names[1]]
 
-            # Calcola differenze percentuali
-            metrics = ['Score\nFinale', 'ACC\n(Comm.)', 'AOC\n(Oper.)', 'Costo\nArchi']
-            values1 = [sol1['score'], sol1['acc_cost'], sol1['aoc_cost'], sol1['total_cost']]
-            values2 = [sol2['score'], sol2['acc_cost'], sol2['aoc_cost'], sol2['total_cost']]
+            # Calcola differenze percentuali solo per ACC, AOC e Score Finale
+            metrics = ['ACC', 'AOC', 'Score\nFinale']
+            values1 = [sol1['acc_cost'], sol1['aoc_cost'], sol1['score']]
+            values2 = [sol2['acc_cost'], sol2['aoc_cost'], sol2['score']]
 
             differences = []
             for v1, v2 in zip(values1, values2):
@@ -334,37 +351,46 @@ class SolutionCostComparator:
                     diff_pct = 0
                 differences.append(diff_pct)
 
-            # Colori basati su positivo/negativo
-            colors = ['#E63946' if d > 0 else '#2A9D8F' for d in differences]
-            bars4 = ax4.bar(metrics, differences, color=colors, alpha=0.8,
-                           edgecolor='black', linewidth=2)
-            ax4.axhline(y=0, color='black', linestyle='-', linewidth=1)
-            ax4.set_title(f'Differenza Percentuale: {names[1]} rispetto a {names[0]}',
-                         fontsize=14, weight='bold')
+            # Un solo colore per tutte le barre
+            single_color = '#3498db'  # Blu
+            
+            bars4 = ax4.bar(metrics, differences, color=single_color, alpha=0.7,
+                        edgecolor='darkblue', linewidth=2)
+            
+            # Linea dello zero più evidente
+            ax4.axhline(y=0, color='black', linestyle='-', linewidth=2)
+            
+            # Titolo semplice e chiaro
+            ax4.set_title(f'Confronto Prestazioni: {names[1]} rispetto a {names[0]}',
+                        fontsize=14, weight='bold')
             ax4.set_ylabel('Differenza %', fontsize=12)
-            ax4.grid(True, alpha=0.3, axis='y')
+            ax4.grid(True, alpha=0.3, axis='y', linestyle='--')
 
-            # Aggiungi valori con frecce
+            # Aggiungi solo i valori percentuali
             for bar, diff in zip(bars4, differences):
                 height = bar.get_height()
-                if abs(height) > 0.1:  # Solo se la differenza è significativa
-                    y_pos = height + (2 if height > 0 else -2)
-                    arrow = '↑' if height > 0 else '↓'
+                if abs(height) > 0.1:  # Solo se significativo
+                    y_offset = max(abs(d) for d in differences) * 0.02
+                    y_pos = height + y_offset if height > 0 else height - y_offset
+                    
+                    # Solo il valore con segno
                     ax4.text(bar.get_x() + bar.get_width()/2., y_pos,
-                            f'{arrow} {diff:+.1f}%', ha='center',
+                            f'{diff:+.1f}%', ha='center',
                             va='bottom' if height > 0 else 'top',
-                            fontsize=11, weight='bold',
-                            bbox=dict(boxstyle="round,pad=0.3",
-                                    facecolor='white', alpha=0.8))
+                            fontsize=12, weight='bold')
 
-            # Legenda per i colori
-            from matplotlib.patches import Patch
-            legend_elements = [
-                Patch(facecolor='#2A9D8F', label=f'{names[1]} migliore', alpha=0.8),
-                Patch(facecolor='#E63946', label=f'{names[0]} migliore', alpha=0.8)
-            ]
-            ax4.legend(handles=legend_elements, loc='best', fontsize=11,
-                      framealpha=0.9, title='Interpretazione', title_fontsize=12)
+            # Aggiungi nota interpretativa sotto il grafico
+            ax4.text(0.5, -0.15, 'Valori positivi: peggiore | Valori negativi: migliore',
+                    transform=ax4.transAxes, ha='center', va='top',
+                    fontsize=10, style='italic', alpha=0.7)
+            
+            # Imposta limiti Y simmetrici per bilanciare il grafico
+            max_abs_diff = max(abs(d) for d in differences) if differences else 1
+            ax4.set_ylim(-max_abs_diff * 1.2, max_abs_diff * 1.2)
+
+
+
+
         else:
             # Se più di 2 soluzioni, mostra una tabella riassuntiva
             ax4.axis('off')
@@ -373,18 +399,19 @@ class SolutionCostComparator:
             cell_text = []
             for name in names:
                 sol = self.solutions[name]
+                cf_total = sol['alpha'] * sol['acc_cost'] + (1 - sol['alpha']) * sol['aoc_cost']
                 row = [
                     sol['algorithm'],
                     f"{sol['score']:.2f}",
                     f"{sol['acc_cost']:.5f}",
                     f"{sol['aoc_cost']:.5f}",
-                    f"{sol['total_cost']}"
+                    f"{cf_total:.6f}"
                 ]
                 cell_text.append(row)
 
             table = ax4.table(cellText=cell_text,
                             rowLabels=names,
-                            colLabels=['Algoritmo', 'Score', 'ACC', 'AOC', 'Edge Cost'],
+                            colLabels=['Algoritmo', 'Score', 'ACC', 'AOC', 'Cost Function'],
                             cellLoc='center',
                             loc='center',
                             colWidths=[0.15, 0.15, 0.15, 0.15, 0.15])
@@ -409,9 +436,9 @@ class SolutionCostComparator:
                 algo_patches.append(Patch(facecolor=color, label=algo.upper(), alpha=0.8))
 
             fig.legend(handles=algo_patches, loc='upper right',
-                      bbox_to_anchor=(0.98, 0.98), fontsize=12,
-                      title='Algoritmi', title_fontsize=13,
-                      framealpha=0.9, edgecolor='black')
+                    bbox_to_anchor=(0.98, 0.98), fontsize=12,
+                    title='Algoritmi', title_fontsize=13,
+                    framealpha=0.9, edgecolor='black')
 
         plt.tight_layout()
 
@@ -422,6 +449,13 @@ class SolutionCostComparator:
         print(f"\n📊 Grafico salvato: {filename}")
 
         plt.show()
+
+
+
+
+
+
+
 
     def export_comparison_report(self, filename=None):
         """

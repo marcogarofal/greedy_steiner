@@ -12,28 +12,28 @@ This formulation favors load distribution over node count minimization
 
 🏆 BEST SOLUTION:
 ----------------------------------------
-Final score: 3522.99
-ACC component: 0.045977
-AOC component: 7.000000
-Custom cost function value: 7.045977
+Final score: 224.43
+ACC component: 0.198851
+AOC component: 0.250000
+Custom cost function value: 0.448851
 Discretionary ACTUALLY used: [28, 29, 30]
 Connected weak nodes: 24
 Failed connections: 0
-Total edge cost: 40
-Capacity efficiency cost: 2.611
-Solution edges: [(25, 29), (25, 26), (29, 2), (29, 4), (29, 5), (29, 6), (29, 7), (29, 12), (29, 13), (29, 24), (26, 28), (26, 30), (26, 27), (28, 1), (28, 3), (28, 9), (28, 10), (28, 11), (28, 15), (28, 16), (28, 18), (28, 20), (28, 21), (28, 14), (28, 17), (28, 19), (28, 23), (30, 8), (30, 22)]
-Capacity usage: {25: 0, 26: 0, 27: 0, 28: 14, 29: 8, 30: 2}
+Total edge cost: 173
+Capacity efficiency cost: 4.000
+Solution edges: [(25, 26), (25, 27), (25, 1), (25, 8), (25, 9), (25, 10), (25, 11), (25, 16), (25, 19), (25, 22), (25, 24), (25, 2), (25, 17), (25, 20), (26, 5), (26, 6), (26, 14), (26, 23), (26, 15), (26, 18), (26, 3), (27, 29), (27, 12), (27, 21), (27, 4), (27, 7), (27, 13), (29, 28), (28, 30)]
+Capacity usage: {25: 12, 26: 7, 27: 5, 28: 0, 29: 0, 30: 0}
 
 DETAILED COMPARISON OF TESTED SOLUTIONS:
 --------------------------------------------------
 
 #1 SELECTED: DIJKSTRA (ALL power nodes)
-  Final Score: 3522.99
-  Custom Cost (ACC + AOC): 7.045977
-    ├─ ACC (α=0.5): 0.045977
-    └─ AOC (1-α=0.5): 7.000000
+  Final Score: 224.43
+  Custom Cost (ACC + AOC): 0.448851
+    ├─ ACC (α=0.5): 0.198851
+    └─ AOC (1-α=0.5): 0.250000
   Connected: 24/24
   Failed connections: 0
-  Edge cost: 40
+  Edge cost: 173
   Discretionary used: [28, 29, 30]
-  Capacity usage: {25: 0, 26: 0, 27: 0, 28: 14, 29: 8, 30: 2}
+  Capacity usage: {25: 12, 26: 7, 27: 5, 28: 0, 29: 0, 30: 0}
